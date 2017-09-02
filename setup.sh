@@ -48,3 +48,4 @@ chmod 755 /etc/init.d/autodrop-start.sh
 sudo update-rc.d autodrop-start.sh defaults
 chmod +x /autodrop/start.sh
 chmod +x /autodrop/stop.sh
+chmod +w /autodrop/download.gcode

@@ -5,7 +5,7 @@
 sleep 10
 ../Printrun/printcore.py -b $SERIALSPEED -v $SERIALPORT start.gcode
 sleep 25
-../Printrun/printcore.py -b $SERIALSPEED -v $SERIALPORT download.gcode
+../Printrun/printcore.py -b $SERIALSPEED -v $SERIALPORT ../download.gcode
 sleep 10
 ../Printrun/printcore.py -b $SERIALSPEED -v $SERIALPORT end.gcode
 
