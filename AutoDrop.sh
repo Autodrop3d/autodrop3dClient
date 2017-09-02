@@ -1,10 +1,10 @@
 #!/bin/bash
 # include this boilerplate
 
-#These are all the settings for the printer. Change these 
+#These are all the settings for the printer. Change these
 #date +'Script initialized at %Y-%m-%d-%H%M' >> /home/pi/3d.log
 cd /autodrop
-./settings.sh
+source settings.sh
 
 function jumpto
 {
@@ -39,6 +39,6 @@ exit
 
 PrintThePart:
 cd $PRINTERSTYLE
-./print.sh
+source print.sh
 cd ..
 jumpto TheTop
