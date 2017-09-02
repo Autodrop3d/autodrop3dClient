@@ -12,7 +12,7 @@ fi
 # define install location, bed_size(x,y,z), auto_ejection(true/false), material_type, material_color
 
 # install dependencies
-sudo apt-get install software-properties-common python-software-properties git python-serial python-wxgtk2.8 python-pyglet python-numpy cython python-libxml2 python-gobject python-dbus python-psutil python-cairosvg libpython-dev figlet
+sudo apt-get install software-properties-common git python-serial python-wxgtk2.8 python-pyglet python-numpy cython python-libxml2 python-gobject python-dbus python-psutil python-cairosvg libpython-dev figlet
 
 
 # install python
