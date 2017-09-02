@@ -3,17 +3,8 @@
 
 #These are all the settings for the printer. Change these 
 #date +'Script initialized at %Y-%m-%d-%H%M' >> /home/pi/3d.log
-cd /home/pi/Printrun
-printerServer='http://AUTODROP3D.COM/printerinterface/gcode'
-printerName='drewsucks'
-printerMaterial='PLA'
-SIZEX='100'
-SIZEY='100'
-SIZEZ='300'
-SERIALPORT='/dev/ttyS0'
-SERIALSPEED='76800'
-PRINTERSTYLE='blade-eject'
-
+cd /autodrop
+./settings.sh
 
 function jumpto
 {

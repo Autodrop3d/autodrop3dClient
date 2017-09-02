@@ -1,15 +1,20 @@
-AUTOEJECT="TRUE"           # Set whether auto-eject system exists.
-printerServer='NULL'       # ex. http://AUTODROP3D.COM/printerinterface/gcode
-printerName='NULL'         # ex. SPARKLES
-printerColor='NULL'        # ex. MAUVE or RED
-printerMaterial='PLA'      # ex. PLA or ABS
-SIZEX='NULL'               # printer X-axis bed size in mm. If left at 0, no jobs will print.
-SIZEY='NULL'               # printer X-axis bed size in mm. If left at 0, no jobs will print.
-SIZEZ='NULL'               # printer X-axis bed size in mm. If left at 0, no jobs will print.
-SERIALPORT='NULL'          # this will be /dev/ttyS0 if connecting via serial, and /dev/ttyUSB0 if connecting via USB.
-SERIALSPEED='76800'        # this will vary based on your controller. 76800 for current.
-LOGGING='FALSE'            # set true to enable logging
-LOGLOCATION=''             # location for log. ex /boot/autodrop.log
+#!/bin/bash
+# include this boilerplate
+
+printerServer='http://AUTODROP3D.COM/printerinterface/gcode'
+printerName='drewsucks'
+printerMaterial='PLA'
+SIZEX='100'
+SIZEY='100'
+SIZEZ='300'
+SERIALPORT='/dev/ttyS0'
+SERIALSPEED='76800'
+PRINTERSTYLE='blade-eject'
+
+
+
+
+
 
 if [ $printerServer == 'NULL' ] ; then
 	echo "Your settings indicate you have an auto-ejection system configured."
