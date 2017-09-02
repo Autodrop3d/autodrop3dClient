@@ -43,6 +43,6 @@ git pull origin
 
 
 #setup reboot at end of script
-cp start.sh /etc/init.d/autodrop-start.sh
+cp /autodrop/start.sh /etc/init.d/autodrop-start.sh
 chmod 755 /etc/init.d/autodrop-start.sh
 sudo update-rc.d /etc/init.d/autodrop-start.sh defaults
