@@ -12,7 +12,7 @@ fi
 # define install location, bed_size(x,y,z), auto_ejection(true/false), material_type, material_color
 
 # install dependencies
-sudo apt-get install screen software-properties-common git python-serial python-wxgtk2.8 python-pyglet python-numpy cython python-libxml2 python-gobject python-dbus python-psutil python-cairosvg python-pip libpython-dev figlet
+# sudo apt-get install screen software-properties-common git python-serial python-wxgtk2.8 python-pyglet python-numpy cython python-libxml2 python-gobject python-dbus python-psutil python-cairosvg python-pip libpython-dev figlet
 
 
 # install python
@@ -32,8 +32,8 @@ cd ..
 #clone and build WiringPi
 sudo apt purge wiringpi
 hash -r
-sudo apt update
-sudo apt upgrade
+# sudo apt update
+# sudo apt upgrade
 cd /autodrop/
 git clone git://git.drogon.net/wiringPi
 cd wiringPi
@@ -42,10 +42,10 @@ git pull origin
 
 
 
-#setup reboot at end of script
-cp /autodrop/start.sh /etc/init.d/autodrop-start.sh
+# setup reboot at end of script
+# cp /autodrop/start.sh /etc/init.d/autodrop-start.sh
 chmod 755 /etc/init.d/autodrop-start.sh
-sudo update-rc.d autodrop-start.sh defaults
+# sudo update-rc.d autodrop-start.sh defaults
 chmod +x /autodrop/start.sh
 chmod +x /autodrop/stop.sh
 chmod +w /autodrop/download.gcode
