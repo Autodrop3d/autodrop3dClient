@@ -3,11 +3,11 @@
 
 
 sleep 10
-./Printrun/printcore.py -b $SERIALSPEED -v $SERIALPORT prusa-start.gcode
+./Printrun/printcore.py -b $SERIALSPEED -v $SERIALPORT "prusa-start.gcode"
 sleep 10
-./Printrun/printcore.py -b $SERIALSPEED -v $SERIALPORT download.gcode
+./Printrun/printcore.py -b $SERIALSPEED -v $SERIALPORT "download.gcode"
 sleep 10
-./Printrun/printcore.py -b $SERIALSPEED -v $SERIALPORT prusa-end.gcode
+./Printrun/printcore.py -b $SERIALSPEED -v $SERIALPORT "prusa-end.gcode"
 
 
 #report Print Job Completed
