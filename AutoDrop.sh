@@ -38,6 +38,6 @@ exit
 
 
 PrintThePart:
-source $PRINTERSTYLE-print.sh
+source $PRINTERSTYLE.print.sh
 sudo reboot
 jumpto TheTop

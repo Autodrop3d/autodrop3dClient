@@ -4,8 +4,8 @@ while [ true ]
 do
 
    COUNT=$((COUNT+1))
-   NEXT=`gpio -g read 23`
-   OOPS=`gpio -g read 24`
+   NEXT=`/usr/local/bin/gpio -g read 23`
+   OOPS=`/usr/local/bin/gpio -g read 24`
    #success, start next
    if [ $NEXT -ge 1 ]; then
       echo "kerblam! Print was good! Let's start the next one!"
