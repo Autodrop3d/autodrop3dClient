@@ -38,7 +38,5 @@ exit
 
 
 PrintThePart:
-cd $PRINTERSTYLE
-source print.sh
-cd ..
+source $PRINTERSTYLE-print.sh
 jumpto TheTop
