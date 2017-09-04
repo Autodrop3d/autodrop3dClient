@@ -1,0 +1,14 @@
+[Unit]
+Description=Autodrop 3d printer controller service
+After=network.target
+After=systemd-user-sessions.service
+After=network-online.target
+
+
+
+[Service]
+ExecStart=bash "/autodrop/start.sh"
+
+
+[Install]
+WantedBy=multi-user.target

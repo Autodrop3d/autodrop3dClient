@@ -49,3 +49,17 @@ chmod 755 /etc/init.d/autodrop-start.sh
 chmod +x /autodrop/start.sh
 chmod +x /autodrop/stop.sh
 chmod +w /autodrop/download.gcode
+
+cp /autodrop/autodrop.service /etc/systemd/system/autodrop.service
+
+sudo systemctl enable autodrop
+
+
+
+sudo systemctl start autodrop
+
+screen -x
+
+
+
+
