@@ -15,11 +15,11 @@ do
    if [ $OOPS -ge 1 ]; then
       echo "kerblam! Success has kicked you in the face. The print job failed."
       echo "It will now be requeued for another shot."
-      #INSERT CURL TO SET STATUS TO PRINT HERE
+      wget -O download.gcode "$printerServer?jobID=${PrintJobID:1}&stat=print"
       break
    fi
    echo "waiting...$COUNT"
-   
+
    sleep 0.1
 done
 
