@@ -1,7 +1,7 @@
 [Unit]
 Description=Autodrop 3d printer controller service
-After=network.target
-After=systemd-user-sessions.service
+
+Wants=network-online.target
 After=network-online.target
 
 
