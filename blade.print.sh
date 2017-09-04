@@ -2,10 +2,12 @@
 # include this boilerplate
 
 
-./Printrun/printcore.py -b $SERIALSPEED -v $SERIALPORT "blade.start.gcode"
-./Printrun/printcore.py -b $SERIALSPEED -v $SERIALPORT "download.gcode"
-sleep 10
-./Printrun/printcore.py -b $SERIALSPEED -v $SERIALPORT "blade.end.gcode"
+cat blade.start.gcode download.gcode blade.end.gcode > out.gcode
+
+./Printrun/printcore.py -b $SERIALSPEED -v $SERIALPORT "out.gcode"
+
+
+
 
 
 #report Print Job Completed

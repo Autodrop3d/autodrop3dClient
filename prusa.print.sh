@@ -1,13 +1,10 @@
 #!/bin/bash
 # include this boilerplate
 
+cat prusa.start.gcode download.gcode prusa.end.gcode > out.gcode
 
-sleep 10
-./Printrun/printcore.py -b $SERIALSPEED -v $SERIALPORT "prusa.start.gcode"
-sleep 10
-./Printrun/printcore.py -b $SERIALSPEED -v $SERIALPORT "download.gcode"
-sleep 10
-./Printrun/printcore.py -b $SERIALSPEED -v $SERIALPORT "prusa.end.gcode"
+./Printrun/printcore.py -b $SERIALSPEED -v $SERIALPORT "out.gcode"
+
 
 
 #report Print Job Completed
