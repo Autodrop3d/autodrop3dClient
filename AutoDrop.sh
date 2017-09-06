@@ -19,7 +19,15 @@ TheTop:
 clear
 figlet AutoDrop3d.com
 rm -f download.gcode
-wget -O download.gcode "$printerServer?name=$printerName&material=$printerMaterial&SizeX=$SIZEX&SizeY=$SIZEY&SizeZ=$SIZEZ"
+
+curl -s \
+"$printerServer" \
+-F name=$printerName \
+-F material=$printerMaterial \
+-F SizeX=$SIZEX \
+-F SizeY=$SIZEY \
+-F SizeZ=$SIZEZ \
+-F content=$new -o download.gcode
 
 #Check for the start instruction
 read -r PrintQueueInstruction<download.gcode

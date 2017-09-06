@@ -16,6 +16,11 @@ do
       echo "kerblam! Success has kicked you in the face. The print job failed."
       echo "It will now be requeued for another shot."
       wget -O download.gcode "$printerServer?jobID=${PrintJobID:1}&stat=print"
+      curl -s \
+      "$printerServer" \
+      -F name=$printerServer \
+      -F jobID=${PrintJobID:1} \
+      -F stat="print" -o download.gcode
       break
    fi
    echo "waiting...$COUNT"
