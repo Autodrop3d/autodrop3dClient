@@ -1,0 +1,190 @@
+./AutoDrop.sh: line 24: TheTop:: command not found
+[3;J[H[2J                                                                             
+   mm            m           mmmm                         mmmm      #        
+   ##   m   m  mm#mm   mmm   #   "m  m mm   mmm   mmmm   "   "#  mmm#        
+  #  #  #   #    #    #" "#  #    #  #"  " #" "#  #" "#    mmm" #" "#        
+  #mm#  #   #    #    #   #  #    #  #     #   #  #   #      "# #   #        
+ #    # "mm"#    "mm  "#m#"  #mmm"   #     "#m#"  ##m#"  "mmm#" "#m##    #   
+                                                  #                          
+                                                  "                          
+                                                                             
+                                                                             
+  mmm    mmm   mmmmm                                                         
+ #"  "  #" "#  # # #                                                         
+ #      #   #  # # #                                                         
+ "#mm"  "#m#"  # # #                                                         
+                                                                             
+                                                                             
+--2017-08-05 15:30:35--  http://autodrop3d.com/printerinterface/gcode?name=JOHNSUCKS&Color=RED&material=PLA&SizeX=50&SizeY=50&SizeZ=300
+Resolving autodrop3d.com (autodrop3d.com)... 70.35.202.37
+Connecting to autodrop3d.com (autodrop3d.com)|70.35.202.37|:80... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: unspecified [text/text]
+Saving to: ‘download.gcode’
+
+     0K                                                         165K=0s
+
+2017-08-05 15:30:35 (165 KB/s) - ‘download.gcode’ saved [23]
+
+No Print Jobs Available
+[3;J[H[2J                                                                             
+   mm            m           mmmm                         mmmm      #        
+   ##   m   m  mm#mm   mmm   #   "m  m mm   mmm   mmmm   "   "#  mmm#        
+  #  #  #   #    #    #" "#  #    #  #"  " #" "#  #" "#    mmm" #" "#        
+  #mm#  #   #    #    #   #  #    #  #     #   #  #   #      "# #   #        
+ #    # "mm"#    "mm  "#m#"  #mmm"   #     "#m#"  ##m#"  "mmm#" "#m##    #   
+                                                  #                          
+                                                  "                          
+                                                                             
+                                                                             
+  mmm    mmm   mmmmm                                                         
+ #"  "  #" "#  # # #                                                         
+ #      #   #  # # #                                                         
+ "#mm"  "#m#"  # # #                                                         
+                                                                             
+                                                                             
+--2017-08-05 15:30:46--  http://autodrop3d.com/printerinterface/gcode?name=JOHNSUCKS&Color=RED&material=PLA&SizeX=50&SizeY=50&SizeZ=300
+Resolving autodrop3d.com (autodrop3d.com)... 70.35.202.37
+Connecting to autodrop3d.com (autodrop3d.com)|70.35.202.37|:80... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: unspecified [text/text]
+Saving to: ‘download.gcode’
+
+     0K                                                         140K=0s
+
+2017-08-05 15:30:46 (140 KB/s) - ‘download.gcode’ saved [23]
+
+No Print Jobs Available
+[3;J[H[2J                                                                             
+   mm            m           mmmm                         mmmm      #        
+   ##   m   m  mm#mm   mmm   #   "m  m mm   mmm   mmmm   "   "#  mmm#        
+  #  #  #   #    #    #" "#  #    #  #"  " #" "#  #" "#    mmm" #" "#        
+  #mm#  #   #    #    #   #  #    #  #     #   #  #   #      "# #   #        
+ #    # "mm"#    "mm  "#m#"  #mmm"   #     "#m#"  ##m#"  "mmm#" "#m##    #   
+                                                  #                          
+                                                  "                          
+                                                                             
+                                                                             
+  mmm    mmm   mmmmm                                                         
+ #"  "  #" "#  # # #                                                         
+ #      #   #  # # #                                                         
+ "#mm"  "#m#"  # # #                                                         
+                                                                             
+                                                                             
+--2017-08-05 15:30:57--  http://autodrop3d.com/printerinterface/gcode?name=JOHNSUCKS&Color=RED&material=PLA&SizeX=50&SizeY=50&SizeZ=300
+Resolving autodrop3d.com (autodrop3d.com)... 70.35.202.37
+Connecting to autodrop3d.com (autodrop3d.com)|70.35.202.37|:80... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: unspecified [text/text]
+Saving to: ‘download.gcode’
+
+     0K                                                         166K=0s
+
+2017-08-05 15:30:58 (166 KB/s) - ‘download.gcode’ saved [23]
+
+No Print Jobs Available
+[3;J[H[2J                                                                             
+   mm            m           mmmm                         mmmm      #        
+   ##   m   m  mm#mm   mmm   #   "m  m mm   mmm   mmmm   "   "#  mmm#        
+  #  #  #   #    #    #" "#  #    #  #"  " #" "#  #" "#    mmm" #" "#        
+  #mm#  #   #    #    #   #  #    #  #     #   #  #   #      "# #   #        
+ #    # "mm"#    "mm  "#m#"  #mmm"   #     "#m#"  ##m#"  "mmm#" "#m##    #   
+                                                  #                          
+                                                  "                          
+                                                                             
+                                                                             
+  mmm    mmm   mmmmm                                                         
+ #"  "  #" "#  # # #                                                         
+ #      #   #  # # #                                                         
+ "#mm"  "#m#"  # # #                                                         
+                                                                             
+                                                                             
+--2017-08-05 15:31:08--  http://autodrop3d.com/printerinterface/gcode?name=JOHNSUCKS&Color=RED&material=PLA&SizeX=50&SizeY=50&SizeZ=300
+Resolving autodrop3d.com (autodrop3d.com)... 70.35.202.37
+Connecting to autodrop3d.com (autodrop3d.com)|70.35.202.37|:80... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: unspecified [text/text]
+Saving to: ‘download.gcode’
+
+     0K                                                         162K=0s
+
+2017-08-05 15:31:09 (162 KB/s) - ‘download.gcode’ saved [23]
+
+No Print Jobs Available
+./AutoDrop.sh: line 24: TheTop:: command not found
+[3;J[H[2J                                                                             
+   mm            m           mmmm                         mmmm      #        
+   ##   m   m  mm#mm   mmm   #   "m  m mm   mmm   mmmm   "   "#  mmm#        
+  #  #  #   #    #    #" "#  #    #  #"  " #" "#  #" "#    mmm" #" "#        
+  #mm#  #   #    #    #   #  #    #  #     #   #  #   #      "# #   #        
+ #    # "mm"#    "mm  "#m#"  #mmm"   #     "#m#"  ##m#"  "mmm#" "#m##    #   
+                                                  #                          
+                                                  "                          
+                                                                             
+                                                                             
+  mmm    mmm   mmmmm                                                         
+ #"  "  #" "#  # # #                                                         
+ #      #   #  # # #                                                         
+ "#mm"  "#m#"  # # #                                                         
+                                                                             
+                                                                             
+--2017-08-05 15:37:31--  http://autodrop3d.com/printerinterface/gcode?name=JOHNSUCKS&Color=RED&material=PLA&SizeX=50&SizeY=50&SizeZ=300
+Resolving autodrop3d.com (autodrop3d.com)... 70.35.202.37
+Connecting to autodrop3d.com (autodrop3d.com)|70.35.202.37|:80... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: unspecified [text/text]
+Saving to: ‘download.gcode’
+
+     0K                                                         126K=0s
+
+2017-08-05 15:37:31 (126 KB/s) - ‘download.gcode’ saved [23]
+
+No Print Jobs Available
+[3;J[H[2J                                                                             
+   mm            m           mmmm                         mmmm      #        
+   ##   m   m  mm#mm   mmm   #   "m  m mm   mmm   mmmm   "   "#  mmm#        
+  #  #  #   #    #    #" "#  #    #  #"  " #" "#  #" "#    mmm" #" "#        
+  #mm#  #   #    #    #   #  #    #  #     #   #  #   #      "# #   #        
+ #    # "mm"#    "mm  "#m#"  #mmm"   #     "#m#"  ##m#"  "mmm#" "#m##    #   
+                                                  #                          
+                                                  "                          
+                                                                             
+                                                                             
+  mmm    mmm   mmmmm                                                         
+ #"  "  #" "#  # # #                                                         
+ #      #   #  # # #                                                         
+ "#mm"  "#m#"  # # #                                                         
+                                                                             
+                                                                             
+--2017-08-05 15:37:42--  http://autodrop3d.com/printerinterface/gcode?name=JOHNSUCKS&Color=RED&material=PLA&SizeX=50&SizeY=50&SizeZ=300
+Resolving autodrop3d.com (autodrop3d.com)... 70.35.202.37
+Connecting to autodrop3d.com (autodrop3d.com)|70.35.202.37|:80... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: unspecified [text/text]
+Saving to: ‘download.gcode’
+
+     0K                                                         166K=0s
+
+2017-08-05 15:37:43 (166 KB/s) - ‘download.gcode’ saved [23]
+
+No Print Jobs Available
+[3;J[H[2J                                                                             
+   mm            m           mmmm                         mmmm      #        
+   ##   m   m  mm#mm   mmm   #   "m  m mm   mmm   mmmm   "   "#  mmm#        
+  #  #  #   #    #    #" "#  #    #  #"  " #" "#  #" "#    mmm" #" "#        
+  #mm#  #   #    #    #   #  #    #  #     #   #  #   #      "# #   #        
+ #    # "mm"#    "mm  "#m#"  #mmm"   #     "#m#"  ##m#"  "mmm#" "#m##    #   
+                                                  #                          
+                                                  "                          
+                                                                             
+                                                                             
+  mmm    mmm   mmmmm                                                         
+ #"  "  #" "#  # # #                                                         
+ #      #   #  # # #                                                         
+ "#mm"  "#m#"  # # #                                                         
+                                                                             
+                                                                             
+--2017-08-05 15:37:53--  http://autodrop3d.com/printerinterface/gcode?name=JOHNSUCKS&Color=RED&material=PLA&SizeX=50&SizeY=50&SizeZ=300
+Resolving autodrop3d.com (autodrop3d.com)... 70.35.202.37
+Connecting to autodrop3d.com (autodrop3d.com)|70.35.202.37|:80... connected.
+HTTP request sent, awaiting response... 

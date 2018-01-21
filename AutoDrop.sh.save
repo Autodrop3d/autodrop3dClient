@@ -1,0 +1,11 @@
+#!/bin/bash
+
+./printcore.py -b 76800 -v '/dev/ttyS0' start1.gcode
+
+
+lpr 
+
+
+./printcore.py -b 76800 -v '/dev/ttyS0' out.txt
+
+./printcore.py -b 76800 -v '/dev/ttyS0' end.gcode
