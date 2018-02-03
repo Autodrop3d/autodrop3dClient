@@ -91,6 +91,7 @@ while 1: #loop for ever
 		f.close()
 		EjectStuff()
 		PrintFile("download.g")
+		EjectStuff()
 		
 		URLtoDownload = printerServer + "?jobID=" + PrintNumber + "&stat=Done"
 		print(URLtoDownload)
