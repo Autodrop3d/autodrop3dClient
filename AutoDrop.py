@@ -1,8 +1,57 @@
-#!/usr/bin/env python
+#! /usr/bin/env python3
+
+import _thread
 import serial
 import time
 import RPi.GPIO as GPIO
 from urllib.request import urlretrieve
+
+
+
+
+
+from http.server import BaseHTTPRequestHandler, HTTPServer
+ 
+# HTTPRequestHandler class
+class testHTTPServer_RequestHandler(BaseHTTPRequestHandler):
+ 
+  # GET
+  def do_GET(self):
+        # Send response status code
+        self.send_response(200)
+ 
+        # Send headers
+        self.send_header('Content-type','text/html')
+        self.end_headers()
+ 
+        # Send message back to client
+        message = "Hello world!"
+        # Write content as utf-8 data
+        self.wfile.write(bytes(message, "utf8"))
+        return
+ 
+def run():
+  print('starting server...')
+ 
+  # Server settings
+  # Choose port 8080, for port 80, which is normally used for a http server, you need root access
+  server_address = ('', 8081)
+  httpd = HTTPServer(server_address, testHTTPServer_RequestHandler)
+  print('running server...')
+  httpd.serve_forever()
+ 
+ 
+try:
+   _thread.start_new_thread( run,() )
+
+except:
+   print ("Error: unable to start server thread")
+ 
+
+
+
+
+
 
 # Initialize Serial Port
 AutoDropSerialPort = "/dev/ttyS0"
@@ -10,7 +59,6 @@ AutoDropSerialPortSpeed = 76800
 
 printerServer = 'http://autodrop3d.com/printerinterface/gcode'
 printerName = 'NEW-GCODE-CLIENT'
-printerColor = 'RED'
 printerMaterial = 'PLA-YELLOW'
 SIZEX = '120'
 SIZEY = '120'
@@ -72,7 +120,7 @@ def PrintFile(gcodeFileName = 'test.g'):
 
 	
 while 1: #loop for ever
-	URLtoDownload = printerServer + "?name=" + printerName + "&Color=" + printerColor + "&material=" + printerMaterial + "&SizeX=" + 	SIZEX +"&SizeY=" + SIZEY + "&SizeZ=" + SIZEZ
+	URLtoDownload = printerServer + "?name=" + printerName +  "&material=" + printerMaterial + "&SizeX=" + 	SIZEX +"&SizeY=" + SIZEY + "&SizeZ=" + SIZEZ
 	urlretrieve(URLtoDownload, "download.g")
 	print(URLtoDownload)
 	f = open("download.g",'r');
