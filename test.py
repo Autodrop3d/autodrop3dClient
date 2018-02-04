@@ -3,8 +3,6 @@
 import _thread
 import serial
 import time
-import RPi.GPIO as GPIO
-from urllib.request import urlretrieve 
 from flask import Flask, render_template, request
 app = Flask(__name__)
 
@@ -134,13 +132,6 @@ def EjectStuff():
 
 
 def PrintFile(gcodeFileName = 'test.g'):
-	s = serial.Serial(AutoDropSerialPort,AutoDropSerialPortSpeed)
-	# Wake up grbl
-	s.write(('\r\n\r\n').encode("ascii"))
-	time.sleep(2)   # Wait for grbl to initialize 
-	s.flushInput()  # Flush startup text in serial input
-	s.write(('\r\n\r\n').encode("ascii"))
-
 
 	f = open(gcodeFileName,'r');
 
@@ -151,28 +142,15 @@ def PrintFile(gcodeFileName = 'test.g'):
 		l = l.strip();
 
 		if l.startswith(b';') |( l == ''):
-			print("Skipping line:" + str(l,"ascii"))
-			print(str(l).find(";EJECT"))
 			if str(l).find(";EJECT") != -1:
 				EjectStuff()
 				
-			exec(open("./filename").read())
+			exec(open("custom.py").read()+ "\n\n" + str(l.split(b'@',1)[1],"ascii"))
 			
 		else:
 			ll = str(l.split(b';',1)[0],"ascii")
 			if ll != "":
 				print("Sending :" + ll)
-				s.write(ll.encode("ascii") + b'\n')
-				
-				beReadingLines = 1
-				
-				while beReadingLines :
-					grbl_out = str(s.readline(),"ascii") # Wait for grbl response with carriage return
-					print(' : ' + grbl_out.strip())
-					s.flushInput() 
-					beReadingLines = 0
-					if "T:" in grbl_out:
-						beReadingLines = 1
 
 	# Close file and serial port
 	f.close()
@@ -185,30 +163,5 @@ def PrintFile(gcodeFileName = 'test.g'):
 	
 	
 while 1: #loop for ever
-	URLtoDownload = printerServer + "?name=" + printerName +  "&material=" + printerMaterial + "&SizeX=" + 	SIZEX +"&SizeY=" + SIZEY + "&SizeZ=" + SIZEZ
-	urlretrieve(URLtoDownload, "download.g")
-	print(URLtoDownload)
-	f = open("download.g",'r');
-	serverMsg = str(f.readline())
-	print(str(serverMsg))
-	
-	if serverMsg.find(";start") == -1:
-		print("Np print job for you")
-		f.close()
-	else:
-		bla = str(f.readline()).strip()
-		PrintNumber = str(f.readline()).replace(";","").strip()
-		
-		print("PrintNumber=" + PrintNumber)
-		
-		f.close()
-		PrintFile("start.gcode")
-		PrintFile("download.g")
-		PrintFile("end.gcode")
-	
-		
-		URLtoDownload = printerServer + "?jobID=" + PrintNumber + "&stat=Done"
-		print(URLtoDownload)
-		urlretrieve(URLtoDownload, "download.g")
-		
+	PrintFile("start.gcode")
 	time.sleep(10)  

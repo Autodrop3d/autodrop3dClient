@@ -12,7 +12,7 @@ form
 	margin: auto;
 	position: relative;
 	width: 80%;
-	height: 80%;
+	
 
 
 	line-height: 24px;
@@ -61,7 +61,7 @@ input[type="submit"] :hover {
 
 <center><h1>Autodrop3d Printer Configuration</h1>
 </center>
-<form action="/">
+<form action="/" id="usrform">
 	AutoDropSerialPort:<br>
 	<input type="text" name="AutoDropSerialPort" value="{{ AutoDropSerialPort }}"><br>
 	AutoDropSerialPortSpeed:<br>
@@ -78,5 +78,12 @@ input[type="submit"] :hover {
 	<input type="text" name="SIZEY" value="{{ SIZEY }}"><br>
 	SIZEZ:<br>
 	<input type="text" name="SIZEZ" value="{{ SIZEZ }}"><br>
+	
+	START GCODE:<br>
+	<textarea rows="10" name="STARTGCODE" form="usrform" style="width:100%">{{ STARTGCODE }}</textarea><br>
+	END GCODE:<br>
+	<textarea rows="10" name="ENDGCODE" form="usrform"  style="width:100%">{{ ENDGCODE }}</textarea><br>
+	
+	
   <input type="submit" value="Save Settings"><br>
 </form> 
