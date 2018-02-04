@@ -1,0 +1,8 @@
+/dev/ttyS0
+76800
+http://autodrop3d.com/printerinterface/gcode
+NEW-GCODE-CLIENT
+PLA-YELLOW
+120
+120
+300

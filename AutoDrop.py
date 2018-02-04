@@ -10,14 +10,17 @@ app = Flask(__name__)
 
 
 
-AutoDropSerialPort = "/dev/ttyS0"
-AutoDropSerialPortSpeed = 76800
-printerServer = 'http://autodrop3d.com/printerinterface/gcode'
-printerName = 'NEW-GCODE-CLIENT'
-printerMaterial = 'PLA-YELLOW'
-SIZEX = '120'
-SIZEY = '120'
-SIZEZ = '300'
+f = open("settings.txt",'r');
+AutoDropSerialPort = str(f.readline()).strip()
+AutoDropSerialPortSpeed = str(f.readline()).strip()
+printerServer = str(f.readline()).strip()
+printerName = str(f.readline()).strip()
+printerMaterial = str(f.readline()).strip()
+SIZEX = str(f.readline()).strip()
+SIZEY = str(f.readline()).strip()
+SIZEZ = str(f.readline()).strip()
+f.close()
+
 
 
 
@@ -63,6 +66,21 @@ def index():
 	if TEMP !="":
 		SIZEZ = TEMP 
 		
+		
+		
+	
+	f = open("settings.txt",'w');
+	f.write( AutoDropSerialPort + "\n")
+	f.write( AutoDropSerialPortSpeed + "\n")
+	f.write( printerServer + "\n")
+	f.write( printerName + "\n")
+	f.write( printerMaterial + "\n")
+	f.write( SIZEX + "\n")
+	f.write( SIZEY + "\n")
+	f.write( SIZEZ + "\n")
+	f.close()
+	
+	
 
 	return render_template('index.html', AutoDropSerialPort = AutoDropSerialPort , AutoDropSerialPortSpeed = AutoDropSerialPortSpeed, printerServer = printerServer , printerName = printerName, printerMaterial = printerMaterial, SIZEX = SIZEX, SIZEY = SIZEY , SIZEZ = SIZEZ )
 
