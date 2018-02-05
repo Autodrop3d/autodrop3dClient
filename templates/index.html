@@ -61,7 +61,7 @@ input[type="submit"] :hover {
 
 <center><h1>Autodrop3d Printer Configuration</h1>
 </center>
-<form action="/" id="usrform">
+<form action="/" id="usrform"  method=post>
 	AutoDropSerialPort:<br>
 	<input type="text" name="AutoDropSerialPort" value="{{ AutoDropSerialPort }}"><br>
 	AutoDropSerialPortSpeed:<br>
@@ -83,7 +83,22 @@ input[type="submit"] :hover {
 	<textarea rows="10" name="STARTGCODE" form="usrform" style="width:100%">{{ STARTGCODE }}</textarea><br>
 	END GCODE:<br>
 	<textarea rows="10" name="ENDGCODE" form="usrform"  style="width:100%">{{ ENDGCODE }}</textarea><br>
-	
+	PLUGIN FUNCTIONS:<br>
+	<textarea rows="10" name="PLUGINFUNCTIONS" form="usrform"  style="width:100%">{{ PLUGINFUNCTIONS }}</textarea><br>
 	
   <input type="submit" value="Save Settings"><br>
 </form> 
+<script>
+var textareas = document.getElementsByTagName('textarea');
+var count = textareas.length;
+for(var i=0;i<count;i++){
+    textareas[i].onkeydown = function(e){
+        if(e.keyCode==9 || e.which==9){
+            e.preventDefault();
+            var s = this.selectionStart;
+            this.value = this.value.substring(0,this.selectionStart) + "\t" + this.value.substring(this.selectionEnd);
+            this.selectionEnd = s+1; 
+        }
+    }
+}
+</script>

@@ -22,75 +22,52 @@ f.close()
 
 
 
-@app.route('/')
+@app.route('/',methods = ['GET', 'POST'])
 def index():
 	global AutoDropSerialPort,AutoDropSerialPortSpeed, printerServer, printerName, printerMaterial ,SIZEX, SIZEY, SIZEZ 
 
-	TEMP = request.args.get('AutoDropSerialPort','')
-	if TEMP !="":
-		AutoDropSerialPort = TEMP 
+	if request.method == 'POST':
 
-		
-	TEMP = request.args.get('AutoDropSerialPortSpeed','')
-	if TEMP !="":
-		AutoDropSerialPortSpeed = TEMP 
-		
-		
-	TEMP = request.args.get('printerServer','')
-	if TEMP !="":
-		printerServer = TEMP 
-		
-		
-	TEMP = request.args.get('printerName','')
-	if TEMP !="":
-		printerName = TEMP 
-		
-		
-	TEMP = request.args.get('printerMaterial','')
-	if TEMP !="":
-		printerMaterial = TEMP 
-		
-		
-	TEMP = request.args.get('SIZEX','')
-	if TEMP !="":
-		SIZEX = TEMP 
-		
-	TEMP = request.args.get('SIZEY','')
-	if TEMP !="":
-		SIZEY = TEMP 
-	
-	
-	TEMP = request.args.get('SIZEZ','')
-	if TEMP !="":
-		SIZEZ = TEMP 
+		AutoDropSerialPort = request.form['AutoDropSerialPort']
 
+		AutoDropSerialPortSpeed =  request.form['AutoDropSerialPortSpeed']
+
+		printerServer =  request.form['printerServer']
 		
-	TEMP = request.args.get('STARTGCODE','')
-	if TEMP !="":
-		STARTGCODE = TEMP 
+		printerName = request.form['printerName']
+
+		printerMaterial  = request.form['printerMaterial']
+			
+		SIZEX = request.form['SIZEX']
+
+		SIZEY = request.form['SIZEY']
+
+		SIZEZ = request.form['SIZEZ']
+
+		STARTGCODE = request.form['STARTGCODE'].replace("\r",'')
 		open("start.gcode",'w').write(STARTGCODE)
 
 
-	TEMP = request.args.get('ENDGCODE','')
-	if TEMP !="":
-		ENDGCODE = TEMP 
+		ENDGCODE = request.form['ENDGCODE'].replace("\r",'')
 		open("end.gcode",'w').write(ENDGCODE)		
+			
+
+		PLUGINFUNCTIONS = request.form['PLUGINFUNCTIONS'].replace("\r",'')
+		open("custom.py",'w').write(PLUGINFUNCTIONS)	
 	
-		
-		
-	open("hello.txt","w")
-		
 	
-	f = open("settings.txt",'w');
-	f.write( AutoDropSerialPort + "\n")
-	f.write( AutoDropSerialPortSpeed + "\n")
-	f.write( printerServer + "\n")
-	f.write( printerName + "\n")
-	f.write( printerMaterial + "\n")
-	f.write( SIZEX + "\n")
-	f.write( SIZEY + "\n")
-	f.write( SIZEZ + "\n")
-	f.close()
+			
+		
+		f = open("settings.txt",'w');
+		f.write( AutoDropSerialPort + "\n")
+		f.write( AutoDropSerialPortSpeed + "\n")
+		f.write( printerServer + "\n")
+		f.write( printerName + "\n")
+		f.write( printerMaterial + "\n")
+		f.write( SIZEX + "\n")
+		f.write( SIZEY + "\n")
+		f.write( SIZEZ + "\n")
+		f.close()
 	
 	try:
 		STARTGCODE = open("start.gcode",'r').read()
@@ -102,10 +79,17 @@ def index():
 		ENDGCODE = open("end.gcode",'r').read()
 	except:
 		ENDGCODE = ""
+		
+	
+	try:
+		PLUGINFUNCTIONS = open("custom.py",'r').read()
+	except:
+		PLUGINFUNCTIONS = ""
 	
 	
 
-	return render_template('index.html', AutoDropSerialPort = AutoDropSerialPort , AutoDropSerialPortSpeed = AutoDropSerialPortSpeed, printerServer = printerServer , printerName = printerName, printerMaterial = printerMaterial, SIZEX = SIZEX, SIZEY = SIZEY , SIZEZ = SIZEZ, STARTGCODE = STARTGCODE, ENDGCODE = ENDGCODE)
+
+	return render_template('index.html', AutoDropSerialPort = AutoDropSerialPort , AutoDropSerialPortSpeed = AutoDropSerialPortSpeed, printerServer = printerServer , printerName = printerName, printerMaterial = printerMaterial, SIZEX = SIZEX, SIZEY = SIZEY , SIZEZ = SIZEZ, STARTGCODE = STARTGCODE, ENDGCODE = ENDGCODE, PLUGINFUNCTIONS = PLUGINFUNCTIONS)
 
 def flaskThread():
     app.run(host='0.0.0.0', port=8080)
@@ -144,8 +128,12 @@ def PrintFile(gcodeFileName = 'test.g'):
 		if l.startswith(b';') |( l == ''):
 			if str(l).find(";EJECT") != -1:
 				EjectStuff()
-				
-			exec(open("custom.py").read()+ "\n\n" + str(l.split(b'@',1)[1],"ascii"))
+		
+			if str(l).find(";@") != -1: 
+				try:
+					exec(open("custom.py").read()+ "\n\n" + str(l.split(b'@',1)[1],"ascii"))
+				except:
+					print("Problem exicuting plugin command " + str(l.split(b'@',1)[1],"ascii"))
 			
 		else:
 			ll = str(l.split(b';',1)[0],"ascii")
@@ -154,8 +142,7 @@ def PrintFile(gcodeFileName = 'test.g'):
 
 	# Close file and serial port
 	f.close()
-	s.close()    
-	
+
 	
 #while 1: 
 #	time.sleep(10) 
