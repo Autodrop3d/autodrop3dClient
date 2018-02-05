@@ -2,7 +2,7 @@
 body 
 {
 	font-family: "Courier New", Courier, "Lucida Sans Typewriter", "Lucida Typewriter", monospace;
-	font-size: 24px;
+	font-size: 12px;
 }
 form 
 {
@@ -29,7 +29,7 @@ form
 }
 input[type="text"] 
 {
-	font-size: 24px;
+	font-size: 12px;
 	width: 100%;
 	border: 1px solid #CCC;
 	font-family: "Courier New", Courier, "Lucida Sans Typewriter", "Lucida Typewriter", monospace;
@@ -60,32 +60,46 @@ input[type="submit"] :hover {
 </style>
 
 <center><h1>Autodrop3d Printer Configuration</h1>
-</center>
+	<button onclick="
+	document.getElementById('PrinterSettings').style.display = '';
+	document.getElementById('Advanced').style.display = 'none';	"
+	style="width:25%;">Printer Settings</button>
+	
+	<button onclick="
+	document.getElementById('PrinterSettings').style.display = 'none';
+	document.getElementById('Advanced').style.display = '';	"
+	style="width:25%;">Advanced</button>
+</center>	
+
 <form action="/" id="usrform"  method=post>
-	AutoDropSerialPort:<br>
-	<input type="text" name="AutoDropSerialPort" value="{{ AutoDropSerialPort }}"><br>
-	AutoDropSerialPortSpeed:<br>
-	<input type="text" name="AutoDropSerialPortSpeed" value="{{ AutoDropSerialPortSpeed }}"><br>
-	printerServer:<br>
-	<input type="text" name="printerServer" value="{{ printerServer }}"><br>
-	printerName:<br>
-	<input type="text" name="printerName" value="{{ printerName }}"><br>
-	printerMaterial:<br>
-	<input type="text" name="printerMaterial" value="{{ printerMaterial }}"><br>
-	SIZEX:<br>
-	<input type="text" name="SIZEX" value="{{ SIZEX }}"><br>
-	SIZEY:<br>
-	<input type="text" name="SIZEY" value="{{ SIZEY }}"><br>
-	SIZEZ:<br>
-	<input type="text" name="SIZEZ" value="{{ SIZEZ }}"><br>
+
+	<div id="PrinterSettings">
+		AutoDropSerialPort:<br>
+		<input type="text" name="AutoDropSerialPort" value="{{ AutoDropSerialPort }}"><br>
+		AutoDropSerialPortSpeed:<br>
+		<input type="text" name="AutoDropSerialPortSpeed" value="{{ AutoDropSerialPortSpeed }}"><br>
+		printerServer:<br>
+		<input type="text" name="printerServer" value="{{ printerServer }}"><br>
+		printerName:<br>
+		<input type="text" name="printerName" value="{{ printerName }}"><br>
+		printerMaterial:<br>
+		<input type="text" name="printerMaterial" value="{{ printerMaterial }}"><br>
+		SIZEX:<br>
+		<input type="text" name="SIZEX" value="{{ SIZEX }}"><br>
+		SIZEY:<br>
+		<input type="text" name="SIZEY" value="{{ SIZEY }}"><br>
+		SIZEZ:<br>
+		<input type="text" name="SIZEZ" value="{{ SIZEZ }}"><br>
+	</div>
 	
+	<div id="Advanced" style="display:none;">
 	START GCODE:<br>
-	<textarea rows="10" name="STARTGCODE" form="usrform" style="width:100%">{{ STARTGCODE }}</textarea><br>
+	<textarea rows="12" name="STARTGCODE" form="usrform" style="width:100%">{{ STARTGCODE }}</textarea><br>
 	END GCODE:<br>
-	<textarea rows="10" name="ENDGCODE" form="usrform"  style="width:100%">{{ ENDGCODE }}</textarea><br>
+	<textarea rows="12" name="ENDGCODE" form="usrform"  style="width:100%">{{ ENDGCODE }}</textarea><br>
 	PLUGIN FUNCTIONS:<br>
-	<textarea rows="10" name="PLUGINFUNCTIONS" form="usrform"  style="width:100%">{{ PLUGINFUNCTIONS }}</textarea><br>
-	
+	<textarea rows="12" name="PLUGINFUNCTIONS" form="usrform"  style="width:100%">{{ PLUGINFUNCTIONS }}</textarea><br>
+	</div>
   <input type="submit" value="Save Settings"><br>
 </form> 
 <script>
