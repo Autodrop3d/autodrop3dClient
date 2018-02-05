@@ -94,10 +94,6 @@ if __name__ == "__main__":
 	_thread.start_new_thread(flaskThread,())
 
 
-
-
-
-
 def EjectStuff():
 	print("Ejecting Stuff")
 	GPIO.setwarnings(False)
@@ -108,6 +104,19 @@ def EjectStuff():
 	GPIO.output(12, 0)
 	time.sleep(30) 
 
+	
+def SendGcodeLine(MyGcodeLine = ""):
+	print("Sending :" + MyGcodeLine )
+	s.write(MyGcodeLine + b'\n')
+	beReadingLines = 1
+	while beReadingLines :
+		grbl_out = str(s.readline(),"ascii") # Wait for grbl response with carriage return
+		print(' : ' + grbl_out.strip())
+		s.flushInput() 
+		beReadingLines = 0
+		if "T:" in grbl_out:
+			beReadingLines = 1
+	
 
 
 
@@ -141,18 +150,8 @@ def PrintFile(gcodeFileName = 'test.g'):
 		else:
 			ll = str(l.split(b';',1)[0],"ascii")
 			if ll != "":
-				print("Sending :" + ll)
-				s.write(ll.encode("ascii") + b'\n')
-				
-				beReadingLines = 1
-				
-				while beReadingLines :
-					grbl_out = str(s.readline(),"ascii") # Wait for grbl response with carriage return
-					print(' : ' + grbl_out.strip())
-					s.flushInput() 
-					beReadingLines = 0
-					if "T:" in grbl_out:
-						beReadingLines = 1
+				SendGcodeLine(ll.encode("ascii") + b'\n')
+
 
 	# Close file and serial port
 	f.close()
