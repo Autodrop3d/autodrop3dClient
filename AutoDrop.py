@@ -8,6 +8,8 @@ from urllib.request import urlretrieve
 from flask import Flask, render_template, request
 app = Flask(__name__)
 
+s = '';
+
 
 
 f = open("settings.txt",'r');
@@ -94,21 +96,16 @@ if __name__ == "__main__":
 	_thread.start_new_thread(flaskThread,())
 
 
-def EjectStuff():
-	print("Ejecting Stuff")
-	GPIO.setwarnings(False)
-	GPIO.setmode(GPIO.BOARD)
-	GPIO.setup(12, GPIO.OUT)
-	GPIO.output(12, 1)
-	time.sleep(30)  
-	GPIO.output(12, 0)
-	time.sleep(30) 
+
 
 	
-def SendGcodeLine(MyGcodeLine = ""):
-	print("Sending :" + MyGcodeLine )
-	s.write(MyGcodeLine + b'\n')
+	
+def SendGcodeLine(ll = ''):
+	print("Sending :" + ll)
+	s.write(ll.encode("ascii") + b'\n')
+	
 	beReadingLines = 1
+	
 	while beReadingLines :
 		grbl_out = str(s.readline(),"ascii") # Wait for grbl response with carriage return
 		print(' : ' + grbl_out.strip())
@@ -116,11 +113,10 @@ def SendGcodeLine(MyGcodeLine = ""):
 		beReadingLines = 0
 		if "T:" in grbl_out:
 			beReadingLines = 1
-	
-
 
 
 def PrintFile(gcodeFileName = 'test.g'):
+	global s
 	s = serial.Serial(AutoDropSerialPort,AutoDropSerialPortSpeed)
 	# Wake up grbl
 	s.write(('\r\n\r\n').encode("ascii"))
@@ -138,19 +134,17 @@ def PrintFile(gcodeFileName = 'test.g'):
 		l = l.strip();
 
 		if l.startswith(b';') |( l == ''):
-			if str(l).find(";EJECT") != -1:
-				EjectStuff()
-		
 			if str(l).find(";@") != -1: 
 				try:
 					exec(open("custom.py").read()+ "\n\n" + str(l.split(b'@',1)[1],"ascii"))
 				except:
-					print("Problem exicuting plugin command " + str(l.split(b'@',1)[1],"ascii"))
+					print("Problem executing plug in command " + str(l.split(b'@',1)[1],"ascii"))
 			
 		else:
 			ll = str(l.split(b';',1)[0],"ascii")
 			if ll != "":
-				SendGcodeLine(ll.encode("ascii") + b'\n')
+				SendGcodeLine(ll)
+
 
 
 	# Close file and serial port
@@ -162,32 +156,38 @@ def PrintFile(gcodeFileName = 'test.g'):
 #	time.sleep(10) 
 #	print("fake looping for printer")
 	
-	
-while 1: #loop for ever
-	URLtoDownload = printerServer + "?name=" + printerName +  "&material=" + printerMaterial + "&SizeX=" + 	SIZEX +"&SizeY=" + SIZEY + "&SizeZ=" + SIZEZ
-	urlretrieve(URLtoDownload, "download.g")
-	print(URLtoDownload)
-	f = open("download.g",'r');
-	serverMsg = str(f.readline())
-	print(str(serverMsg))
-	
-	if serverMsg.find(";start") == -1:
-		print("Np print job for you")
-		f.close()
-	else:
-		bla = str(f.readline()).strip()
-		PrintNumber = str(f.readline()).replace(";","").strip()
-		
-		print("PrintNumber=" + PrintNumber)
-		
-		f.close()
-		PrintFile("start.gcode")
-		PrintFile("download.g")
-		PrintFile("end.gcode")
-	
-		
-		URLtoDownload = printerServer + "?jobID=" + PrintNumber + "&stat=Done"
-		print(URLtoDownload)
+def MainPrinterLoop():
+	global AutoDropSerialPort,AutoDropSerialPortSpeed, printerServer, printerName, printerMaterial ,SIZEX, SIZEY, SIZEZ 
+	while 1: #loop for ever
+		URLtoDownload = printerServer + "?name=" + printerName +  "&material=" + printerMaterial + "&SizeX=" + 	SIZEX +"&SizeY=" + SIZEY + "&SizeZ=" + SIZEZ
 		urlretrieve(URLtoDownload, "download.g")
+		print(URLtoDownload)
+		f = open("download.g",'r');
+		serverMsg = str(f.readline())
+		print(str(serverMsg))
 		
+		if serverMsg.find(";start") == -1:
+			print("Np print job for you")
+			f.close()
+		else:
+			bla = str(f.readline()).strip()
+			PrintNumber = str(f.readline()).replace(";","").strip()
+			
+			print("PrintNumber=" + PrintNumber)
+			
+			f.close()
+			PrintFile("start.gcode")
+			PrintFile("download.g")
+			PrintFile("end.gcode")
+		
+			
+			URLtoDownload = printerServer + "?jobID=" + PrintNumber + "&stat=Done"
+			print(URLtoDownload)
+			urlretrieve(URLtoDownload, "download.g")
+			
+		time.sleep(10)  
+
+	
+_thread.start_new_thread(MainPrinterLoop,())
+while 1:
 	time.sleep(10)  
