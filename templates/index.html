@@ -1751,6 +1751,18 @@
             <input type="text" name="SIZEY" value="{{ SIZEY }}"><br>
             SIZEZ:<br>
             <input type="text" name="SIZEZ" value="{{ SIZEZ }}"><br>
+	        SliceOnPrinter:<br>
+            <input type="text" id="SliceOnPrinter" name="SliceOnPrinter" value="{{ SliceOnPrinter }}" readonly="readonly" onclick='
+			if(document.getElementById("SliceOnPrinter").value == "true")
+			{
+				document.getElementById("SliceOnPrinter").value = "false";
+			}
+			else
+			{
+				document.getElementById("SliceOnPrinter").value = "true";
+			};
+			'><br>		
+			
         </div>
 
         <div id="Advanced" class="w3-container w3-border city" style="display:none">

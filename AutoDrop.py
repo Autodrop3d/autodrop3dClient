@@ -1,11 +1,21 @@
 #! /usr/bin/env python3
+ServerTestMode="off"
+
 
 import _thread
-import serial
 import time
-import RPi.GPIO as GPIO
 from urllib.request import urlretrieve 
 from flask import Flask, render_template, request
+
+if ServerTestMode != "on":
+	try:
+		import RPi.GPIO as GPIO
+		import serial
+	except:
+			print("failed to start ras pi stuff")
+
+
+
 app = Flask(__name__)
 
 s = '';
@@ -21,13 +31,14 @@ printerMaterial = str(f.readline()).strip()
 SIZEX = str(f.readline()).strip()
 SIZEY = str(f.readline()).strip()
 SIZEZ = str(f.readline()).strip()
+SliceOnPrinter = str(f.readline()).strip()
 f.close()
 
 
 
 @app.route('/',methods = ['GET', 'POST'])
 def index():
-	global AutoDropSerialPort,AutoDropSerialPortSpeed, printerServer, printerName, printerMaterial ,SIZEX, SIZEY, SIZEZ 
+	global AutoDropSerialPort,AutoDropSerialPortSpeed, printerServer, printerName, printerMaterial ,SIZEX, SIZEY, SIZEZ, SliceOnPrinter
 
 	if request.method == 'POST':
 
@@ -46,6 +57,8 @@ def index():
 		SIZEY = request.form['SIZEY']
 
 		SIZEZ = request.form['SIZEZ']
+		
+		SliceOnPrinter = request.form['SliceOnPrinter']
 
 		STARTGCODE = request.form['STARTGCODE'].replace("\r",'')
 		open("start.gcode",'w').write(STARTGCODE)
@@ -68,6 +81,7 @@ def index():
 		f.write( SIZEX + "\n")
 		f.write( SIZEY + "\n")
 		f.write( SIZEZ + "\n")
+		f.write( SliceOnPrinter + "\n")
 		f.close()
 	
 	try:
@@ -87,10 +101,10 @@ def index():
 	except:
 		PLUGINFUNCTIONS = ""
 
-	return render_template('index.html', AutoDropSerialPort = AutoDropSerialPort , AutoDropSerialPortSpeed = AutoDropSerialPortSpeed, printerServer = printerServer , printerName = printerName, printerMaterial = printerMaterial, SIZEX = SIZEX, SIZEY = SIZEY , SIZEZ = SIZEZ, STARTGCODE = STARTGCODE, ENDGCODE = ENDGCODE, PLUGINFUNCTIONS = PLUGINFUNCTIONS)
+	return render_template('index.html', AutoDropSerialPort = AutoDropSerialPort , AutoDropSerialPortSpeed = AutoDropSerialPortSpeed, printerServer = printerServer , printerName = printerName, printerMaterial = printerMaterial, SIZEX = SIZEX, SIZEY = SIZEY , SIZEZ = SIZEZ, STARTGCODE = STARTGCODE, ENDGCODE = ENDGCODE, PLUGINFUNCTIONS = PLUGINFUNCTIONS, SliceOnPrinter = SliceOnPrinter)
 
 def flaskThread():
-    app.run(host='0.0.0.0', port=8080)
+	app.run(host='0.0.0.0', port=8080)
 	
 if __name__ == "__main__":
 	_thread.start_new_thread(flaskThread,())
@@ -151,15 +165,15 @@ def PrintFile(gcodeFileName = 'test.g'):
 	f.close()
 	s.close()    
 	
-	
-#while 1: 
-#	time.sleep(10) 
-#	print("fake looping for printer")
+if ServerTestMode == "on":
+	while 1: 
+		time.sleep(10) 
+		print("fake looping for printer")
 	
 def MainPrinterLoop():
-	global AutoDropSerialPort,AutoDropSerialPortSpeed, printerServer, printerName, printerMaterial ,SIZEX, SIZEY, SIZEZ 
+	global AutoDropSerialPort,AutoDropSerialPortSpeed, printerServer, printerName, printerMaterial ,SIZEX, SIZEY, SIZEZ ,SliceOnPrinter
 	while 1: #loop for ever
-		URLtoDownload = printerServer + "?name=" + printerName +  "&material=" + printerMaterial + "&SizeX=" + 	SIZEX +"&SizeY=" + SIZEY + "&SizeZ=" + SIZEZ
+		URLtoDownload = printerServer + "?name=" + printerName +  "&material=" + printerMaterial + "&SizeX=" + 	SIZEX +"&SizeY=" + SIZEY + "&SizeZ=" + SIZEZ + "&NoGcode=" + SliceOnPrinter
 		urlretrieve(URLtoDownload, "download.g")
 		print(URLtoDownload)
 		f = open("download.g",'r');
