@@ -36,6 +36,9 @@ f.close()
 
 
 
+CuraSlicerPathAndCommand = "CuraEngine -v -c cura.ini -s posx=0 -s posy=0 {options} -o {OutFile}.gcode {inFile}.stl    2>&1";
+
+
 @app.route('/',methods = ['GET', 'POST'])
 def index():
 	global AutoDropSerialPort,AutoDropSerialPortSpeed, printerServer, printerName, printerMaterial ,SIZEX, SIZEY, SIZEZ, SliceOnPrinter
@@ -103,6 +106,17 @@ def index():
 
 	return render_template('index.html', AutoDropSerialPort = AutoDropSerialPort , AutoDropSerialPortSpeed = AutoDropSerialPortSpeed, printerServer = printerServer , printerName = printerName, printerMaterial = printerMaterial, SIZEX = SIZEX, SIZEY = SIZEY , SIZEZ = SIZEZ, STARTGCODE = STARTGCODE, ENDGCODE = ENDGCODE, PLUGINFUNCTIONS = PLUGINFUNCTIONS, SliceOnPrinter = SliceOnPrinter)
 
+	
+	
+	
+
+	
+	
+@app.route('/slicer',methods = ['GET', 'POST'])
+def slicer():
+	return render_template('slicer.html')
+	
+	
 def flaskThread():
 	app.run(host='0.0.0.0', port=8080)
 	
@@ -165,6 +179,16 @@ def PrintFile(gcodeFileName = 'test.g'):
 	f.close()
 	s.close()    
 	
+def urlretrieveWithFail(OptionA = "",OptionB = ""):
+	try: 
+		f = open(OptionB,'w');
+		f.write("")
+		f.close()
+		urlretrieve(OptionA,OptionB)
+	except:
+		print("Failed Retrieve File")
+	
+
 if ServerTestMode == "on":
 	while 1: 
 		time.sleep(10) 
@@ -174,7 +198,7 @@ def MainPrinterLoop():
 	global AutoDropSerialPort,AutoDropSerialPortSpeed, printerServer, printerName, printerMaterial ,SIZEX, SIZEY, SIZEZ ,SliceOnPrinter
 	while 1: #loop for ever
 		URLtoDownload = printerServer + "?name=" + printerName +  "&material=" + printerMaterial + "&SizeX=" + 	SIZEX +"&SizeY=" + SIZEY + "&SizeZ=" + SIZEZ + "&NoGcode=" + SliceOnPrinter
-		urlretrieve(URLtoDownload, "download.g")
+		urlretrieveWithFail(URLtoDownload, "download.g")
 		print(URLtoDownload)
 		f = open("download.g",'r');
 		serverMsg = str(f.readline())
@@ -197,7 +221,7 @@ def MainPrinterLoop():
 			
 			URLtoDownload = printerServer + "?jobID=" + PrintNumber + "&stat=Done"
 			print(URLtoDownload)
-			urlretrieve(URLtoDownload, "download.g")
+			urlretrieveWithFail(URLtoDownload, "download.g")
 			
 		time.sleep(10)  
 
