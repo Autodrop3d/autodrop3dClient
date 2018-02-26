@@ -125,6 +125,15 @@ if __name__ == "__main__":
 
 
 
+def EjectStuff():
+ 	print("Ejecting Stuff")
+ 	GPIO.setwarnings(False)
+ 	GPIO.setmode(GPIO.BOARD)
+ 	GPIO.setup(12, GPIO.OUT)
+ 	GPIO.output(12, 1)
+ 	time.sleep(30)  
+ 	GPIO.output(12, 0)
+ 	time.sleep(30) 
 
 	
 	
@@ -163,10 +172,14 @@ def PrintFile(gcodeFileName = 'test.g'):
 
 		if l.startswith(b';') |( l == ''):
 			if str(l).find(";@") != -1: 
-				try:
-					exec(open("custom.py").read()+ "\n\n" + str(l.split(b'@',1)[1],"ascii"))
-				except:
-					print("Problem executing plug in command " + str(l.split(b'@',1)[1],"ascii"))
+				if str(l.split(b'@',1)[1],"ascii") == "eject":
+					EjectStuff()
+				else:
+				
+					try:
+						exec(open("custom.py").read()+ "\n\n" + str(l.split(b'@',1)[1],"ascii"))
+					except:
+						print("Problem executing plug in command " + str(l.split(b'@',1)[1],"ascii"))
 			
 		else:
 			ll = str(l.split(b';',1)[0],"ascii")
