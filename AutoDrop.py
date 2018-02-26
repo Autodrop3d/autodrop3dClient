@@ -224,10 +224,37 @@ def MainPrinterLoop():
 			bla = str(f.readline()).strip()
 			PrintNumber = str(f.readline()).replace(";","").strip()
 			
+			bla = str(f.readline()).strip()
+			bla = str(f.readline()).strip()
+			bla = str(f.readline()).strip()
+			bla = str(f.readline()).strip()
+			bla = str(f.readline()).strip()
+			bla = str(f.readline()).strip()
+			bla = str(f.readline()).strip()
+			PrintDimensions =  bla.replace(";","").strip().split(".")
+			
+			PrintDimensionsX = int(PrintDimensions[1])
+			PrintDimensionsY = int(PrintDimensions[2])
+			PrintDimensionsX = int(round((PrintDimensionsX +10) /10.0)*10.0)
+			PrintDimensionsY = int(round((PrintDimensionsY +10) /10.0)*10.0)
+			
+			print("Size x = ")
+			print(PrintDimensionsX)
+			
+			print("Size y = ")
+			print(PrintDimensionsY)
+			
+			print("Print Dimensions are")
+			print(PrintDimensions )
+			
 			print("PrintNumber=" + PrintNumber)
 			
 			f.close()
 			PrintFile("start.gcode")
+			PrintFile("./Batch Raft Builder/" + str(PrintDimensionsX) + "x" + str(PrintDimensionsY) + ".gcode" )
+		
+			PrintFile("SetPostion.gcode")
+
 			PrintFile("download.g")
 			PrintFile("end.gcode")
 		
