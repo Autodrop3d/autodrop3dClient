@@ -1,3 +1,4 @@
+M104 T0 S210
 ;@eject
 
 G28 ; Home extruder

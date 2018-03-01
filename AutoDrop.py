@@ -251,9 +251,9 @@ def MainPrinterLoop():
 			
 			f.close()
 			PrintFile("start.gcode")
-			PrintFile("./Batch Raft Builder/" + str(PrintDimensionsX) + "x" + str(PrintDimensionsY) + ".gcode" )
+			#PrintFile("./Batch Raft Builder/" + str(PrintDimensionsX) + "x" + str(PrintDimensionsY) + ".gcode" )
 		
-			PrintFile("SetPostion.gcode")
+			#PrintFile("SetPostion.gcode")
 
 			PrintFile("download.g")
 			PrintFile("end.gcode")
