@@ -4,7 +4,7 @@ ServerTestMode="off"
 
 import _thread
 import time
-from urllib.request import urlretrieve 
+from urllib.request import urlretrieve
 from flask import Flask, render_template, request
 
 if ServerTestMode != "on":
@@ -35,6 +35,13 @@ SliceOnPrinter = str(f.readline()).strip()
 f.close()
 
 
+currentRaftOfsetX = 0
+currentRaftOfsetY = 0
+currentRaftOfsetZ = 0
+
+currentPrintModeIsRafting = 0
+
+
 
 CuraSlicerPathAndCommand = "CuraEngine -v -c cura.ini -s posx=0 -s posy=0 {options} -o {OutFile}.gcode {inFile}.stl    2>&1";
 
@@ -50,17 +57,17 @@ def index():
 		AutoDropSerialPortSpeed =  request.form['AutoDropSerialPortSpeed']
 
 		printerServer =  request.form['printerServer']
-		
+
 		printerName = request.form['printerName']
 
 		printerMaterial  = request.form['printerMaterial']
-			
+
 		SIZEX = request.form['SIZEX']
 
 		SIZEY = request.form['SIZEY']
 
 		SIZEZ = request.form['SIZEZ']
-		
+
 		SliceOnPrinter = request.form['SliceOnPrinter']
 
 		STARTGCODE = request.form['STARTGCODE'].replace("\r",'')
@@ -68,13 +75,13 @@ def index():
 
 
 		ENDGCODE = request.form['ENDGCODE'].replace("\r",'')
-		open("end.gcode",'w').write(ENDGCODE)		
-			
+		open("end.gcode",'w').write(ENDGCODE)
+
 
 		PLUGINFUNCTIONS = request.form['PLUGINFUNCTIONS'].replace("\r",'')
-		open("custom.py",'w').write(PLUGINFUNCTIONS)	
-	
-		
+		open("custom.py",'w').write(PLUGINFUNCTIONS)
+
+
 		f = open("settings.txt",'w');
 		f.write( AutoDropSerialPort + "\n")
 		f.write( AutoDropSerialPortSpeed + "\n")
@@ -86,19 +93,19 @@ def index():
 		f.write( SIZEZ + "\n")
 		f.write( SliceOnPrinter + "\n")
 		f.close()
-	
+
 	try:
 		STARTGCODE = open("start.gcode",'r').read()
 	except:
 		STARTGCODE = ""
-		
-	
+
+
 	try:
 		ENDGCODE = open("end.gcode",'r').read()
 	except:
 		ENDGCODE = ""
-		
-	
+
+
 	try:
 		PLUGINFUNCTIONS = open("custom.py",'r').read()
 	except:
@@ -106,20 +113,20 @@ def index():
 
 	return render_template('index.html', AutoDropSerialPort = AutoDropSerialPort , AutoDropSerialPortSpeed = AutoDropSerialPortSpeed, printerServer = printerServer , printerName = printerName, printerMaterial = printerMaterial, SIZEX = SIZEX, SIZEY = SIZEY , SIZEZ = SIZEZ, STARTGCODE = STARTGCODE, ENDGCODE = ENDGCODE, PLUGINFUNCTIONS = PLUGINFUNCTIONS, SliceOnPrinter = SliceOnPrinter)
 
-	
-	
-	
 
-	
-	
+
+
+
+
+
 @app.route('/slicer',methods = ['GET', 'POST'])
 def slicer():
 	return render_template('slicer.html')
-	
-	
+
+
 def flaskThread():
 	app.run(host='0.0.0.0', port=8080)
-	
+
 if __name__ == "__main__":
 	_thread.start_new_thread(flaskThread,())
 
@@ -131,33 +138,59 @@ def EjectStuff():
  	GPIO.setmode(GPIO.BOARD)
  	GPIO.setup(12, GPIO.OUT)
  	GPIO.output(12, 1)
- 	time.sleep(30)  
+ 	time.sleep(30)
  	GPIO.output(12, 0)
- 	time.sleep(30) 
+ 	time.sleep(30)
 
-	
-	
+
+
+def offsetGcodeDuringRaft(orgNonManipulatedString = ""):
+	global currentRaftOfsetX, currentRaftOfsetY, currentRaftOfsetZ
+	ManipulatedString = ""
+	for member in orgNonManipulatedString.split( ):
+		if (member[0] == "X"):
+			member = member.replace("X","")
+			member = "X" + str(round(float(member) + currentRaftOfsetX, 6) )
+		if (member[0] == "Y"):
+			member = member.replace("Y","")
+			member = "Y" + str(round(float(member) + currentRaftOfsetY, 6) )
+		if (member[0] == "Z"):
+			member = member.replace("Z","")
+			member = "Z" + str(round(float(member) + currentRaftOfsetZ, 6) )
+
+		ManipulatedString = ManipulatedString + " " + member
+
+	ManipulatedString = ManipulatedString.strip()
+	print("ORG GCODE " + orgNonManipulatedString)
+	print("Maniuplated Gcode " +  ManipulatedString)
+	return ManipulatedString
+
+
+
 def SendGcodeLine(ll = ''):
 	print("Sending :" + ll)
 	s.write(ll.encode("ascii") + b'\n')
-	
+
 	beReadingLines = 1
-	
+
 	while beReadingLines :
 		grbl_out = str(s.readline(),"ascii") # Wait for grbl response with carriage return
 		print(' : ' + grbl_out.strip())
-		s.flushInput() 
+		s.flushInput()
 		beReadingLines = 0
 		if "T:" in grbl_out:
 			beReadingLines = 1
 
 
 def PrintFile(gcodeFileName = 'test.g'):
-	global s
+	global s, currentPrintModeIsRafting, currentRaftOfsetY
+	currentRaftOfsetY = 0
+
+
 	s = serial.Serial(AutoDropSerialPort,AutoDropSerialPortSpeed)
 	# Wake up grbl
 	s.write(('\r\n\r\n').encode("ascii"))
-	time.sleep(2)   # Wait for grbl to initialize 
+	time.sleep(2)   # Wait for grbl to initialize
 	s.flushInput()  # Flush startup text in serial input
 	s.write(('\r\n\r\n').encode("ascii"))
 
@@ -171,18 +204,26 @@ def PrintFile(gcodeFileName = 'test.g'):
 		l = l.strip();
 
 		if l.startswith(b';') |( l == ''):
-			if str(l).find(";@") != -1: 
+			print("This is a comment line :*" +str( l) + "*")
+
+			if l.startswith(b';LAYER:-2'):
+				currentPrintModeIsRafting = currentPrintModeIsRafting + 1
+				currentRaftOfsetY = currentRaftOfsetY - .5
+			if l.startswith(b';LAYER:0'):
+				currentPrintModeIsRafting = 0
+			if str(l).find(";@") != -1:
 				if str(l.split(b'@',1)[1],"ascii") == "eject":
 					EjectStuff()
 				else:
-				
+
 					try:
 						exec(open("custom.py").read()+ "\n\n" + str(l.split(b'@',1)[1],"ascii"))
 					except:
 						print("Problem executing plug in command " + str(l.split(b'@',1)[1],"ascii"))
-			
+
 		else:
 			ll = str(l.split(b';',1)[0],"ascii")
+			ll = offsetGcodeDuringRaft(ll)
 			if ll != "":
 				SendGcodeLine(ll)
 
@@ -190,23 +231,23 @@ def PrintFile(gcodeFileName = 'test.g'):
 
 	# Close file and serial port
 	f.close()
-	s.close()    
-	
+	s.close()
+
 def urlretrieveWithFail(OptionA = "",OptionB = ""):
-	try: 
+	try:
 		f = open(OptionB,'w');
 		f.write("")
 		f.close()
 		urlretrieve(OptionA,OptionB)
 	except:
 		print("Failed Retrieve File")
-	
+
 
 if ServerTestMode == "on":
-	while 1: 
-		time.sleep(10) 
+	while 1:
+		time.sleep(10)
 		print("fake looping for printer")
-	
+
 def MainPrinterLoop():
 	global AutoDropSerialPort,AutoDropSerialPortSpeed, printerServer, printerName, printerMaterial ,SIZEX, SIZEY, SIZEZ ,SliceOnPrinter
 	while 1: #loop for ever
@@ -216,14 +257,14 @@ def MainPrinterLoop():
 		f = open("download.g",'r');
 		serverMsg = str(f.readline())
 		print(str(serverMsg))
-		
+
 		if serverMsg.find(";start") == -1:
 			print("Np print job for you")
 			f.close()
 		else:
 			bla = str(f.readline()).strip()
 			PrintNumber = str(f.readline()).replace(";","").strip()
-			
+
 			bla = str(f.readline()).strip()
 			bla = str(f.readline()).strip()
 			bla = str(f.readline()).strip()
@@ -232,40 +273,40 @@ def MainPrinterLoop():
 			bla = str(f.readline()).strip()
 			bla = str(f.readline()).strip()
 			PrintDimensions =  bla.replace(";","").strip().split(".")
-			
+
 			PrintDimensionsX = int(PrintDimensions[1])
 			PrintDimensionsY = int(PrintDimensions[2])
 			PrintDimensionsX = int(round((PrintDimensionsX +10) /10.0)*10.0)
 			PrintDimensionsY = int(round((PrintDimensionsY +10) /10.0)*10.0)
-			
+
 			print("Size x = ")
 			print(PrintDimensionsX)
-			
+
 			print("Size y = ")
 			print(PrintDimensionsY)
-			
+
 			print("Print Dimensions are")
 			print(PrintDimensions )
-			
+
 			print("PrintNumber=" + PrintNumber)
-			
+
 			f.close()
 			PrintFile("start.gcode")
 			#PrintFile("./Batch Raft Builder/" + str(PrintDimensionsX) + "x" + str(PrintDimensionsY) + ".gcode" )
-		
+
 			#PrintFile("SetPostion.gcode")
 
 			PrintFile("download.g")
 			PrintFile("end.gcode")
-		
-			
+
+
 			URLtoDownload = printerServer + "?jobID=" + PrintNumber + "&stat=Done"
 			print(URLtoDownload)
 			urlretrieveWithFail(URLtoDownload, "download.g")
-			
-		time.sleep(10)  
 
-	
+		time.sleep(10)
+
+
 _thread.start_new_thread(MainPrinterLoop,())
 while 1:
-	time.sleep(10)  
+	time.sleep(10)
