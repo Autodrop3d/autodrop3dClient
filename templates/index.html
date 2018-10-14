@@ -1724,8 +1724,13 @@
         <button class="w3-bar-item w3-button tablink w3-red" onclick="ShowTab(event,'PrinterSettings')">Printer
             Settings
         </button>
-        <button class="w3-bar-item w3-button tablink" onclick="ShowTab(event,'Advanced')">Advanced GCODE &Macros
+        <button class="w3-bar-item w3-button tablink" onclick="ShowTab(event,'Advanced')">
+          Advanced GCODE &Macros
         </button>
+        <button class="w3-bar-item w3-button tablink" onclick="ShowTab(event,'machineControll')">
+          Machine Controll
+        </button>
+
 
     </div>
     <form action="/" id="usrform" method= post>
@@ -1751,6 +1756,15 @@
             <input type="text" name="SIZEY" value="{{ SIZEY }}"><br>
             SIZEZ:<br>
             <input type="text" name="SIZEZ" value="{{ SIZEZ }}"><br>
+            ZERO POINT OFFSET X:<br>
+            <input type="text" name="printerPositionOffsetOverideX" value="{{ printerPositionOffsetOverideX }}"><br>
+            ZERO POINT OFFSET Y:<br>
+            <input type="text" name="printerPositionOffsetOverideY" value="{{ printerPositionOffsetOverideY }}"><br>
+            ZERO POINT OFFSET X:<br>
+            <input type="text" name="printerPositionOffsetOverideZ" value="{{ printerPositionOffsetOverideZ }}"><br>
+
+
+
 	        SliceOnPrinter:<br>
             <input type="text" id="SliceOnPrinter" name="SliceOnPrinter" value="{{ SliceOnPrinter }}" readonly="readonly" onclick='
 			if(document.getElementById("SliceOnPrinter").value == "true")
@@ -1761,8 +1775,8 @@
 			{
 				document.getElementById("SliceOnPrinter").value = "true";
 			};
-			'><br>		
-			
+			'><br>
+
         </div>
 
         <div id="Advanced" class="w3-container w3-border city" style="display:none">
@@ -1778,6 +1792,21 @@
         </div>
 
     </form>
+
+    <div id="machineControll" class="w3-container w3-border city" style="display:none">
+        <span>
+          machines controll page
+        </span><br>
+
+        <a href="./manualcontroll?gcode=G28" target="gcodeSenderResult">HOME MACHINE</a><br>
+        <a href="./manualcontroll?gcode=G1 X0 Y0 Z0" target="gcodeSenderResult">GOTO 0,0,0</a><br>
+        <input id="gcodeToSend" ></input> <button onclick="
+        document.getElementById('gcodeSenderResult').src = './manualcontroll?gcode=' + document.getElementById('gcodeToSend').value;
+        ">
+        Send Gcode</button>
+        <br>
+        <iframe name='gcodeSenderResult'  id='gcodeSenderResult' src="about:blank"></iframe>
+    </div>
 
 </div>
 </body>
@@ -1810,5 +1839,3 @@ for (var i = 0; i < count; i++) {
     }
 }
 </script>
-
-

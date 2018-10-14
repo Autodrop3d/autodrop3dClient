@@ -21,9 +21,15 @@ app = Flask(__name__)
 s = '';
 
 
-currentRaftOfsetX = 0
-currentRaftOfsetY = 0
-currentRaftOfsetZ = 40
+printerPositionOffsetOverideX = 0
+printerPositionOffsetOverideY = 0
+printerPositionOffsetOverideZ = 40
+
+raftOffsetX = 0
+raftOffsetY = 0
+raftOffsetZ = 0
+
+
 
 currentPrintModeIsRafting = 0
 
@@ -38,9 +44,9 @@ SIZEX = str(f.readline()).strip()
 SIZEY = str(f.readline()).strip()
 SIZEZ = str(f.readline()).strip()
 SliceOnPrinter = str(f.readline()).strip()
-currentRaftOfsetX  = str(f.readline()).strip()
-currentRaftOfsetY  = str(f.readline()).strip()
-currentRaftOfsetZ  = str(f.readline()).strip()
+printerPositionOffsetOverideX  = str(f.readline()).strip()
+printerPositionOffsetOverideY  = str(f.readline()).strip()
+printerPositionOffsetOverideZ  = str(f.readline()).strip()
 f.close()
 
 
@@ -53,7 +59,7 @@ CuraSlicerPathAndCommand = "CuraEngine -v -c cura.ini -s posx=0 -s posy=0 {optio
 
 @app.route('/',methods = ['GET', 'POST'])
 def index():
-	global AutoDropSerialPort,AutoDropSerialPortSpeed, printerServer, printerName, printerMaterial ,SIZEX, SIZEY, SIZEZ, SliceOnPrinter, currentRaftOfsetX, currentRaftOfsetY, currentRaftOfsetZ
+	global AutoDropSerialPort,AutoDropSerialPortSpeed, printerServer, printerName, printerMaterial ,SIZEX, SIZEY, SIZEZ, SliceOnPrinter, printerPositionOffsetOverideX, printerPositionOffsetOverideY, printerPositionOffsetOverideZ
 
 	if request.method == 'POST':
 
@@ -75,9 +81,9 @@ def index():
 
 		SliceOnPrinter = request.form['SliceOnPrinter']
 
-		currentRaftOfsetX = request.form['currentRaftOfsetX']
-		currentRaftOfsetY = request.form['currentRaftOfsetY']
-		currentRaftOfsetZ = request.form['currentRaftOfsetZ']
+		printerPositionOffsetOverideX = request.form['printerPositionOffsetOverideX']
+		printerPositionOffsetOverideY = request.form['printerPositionOffsetOverideY']
+		printerPositionOffsetOverideZ = request.form['printerPositionOffsetOverideZ']
 
 
 		STARTGCODE = request.form['STARTGCODE'].replace("\r",'')
@@ -102,9 +108,9 @@ def index():
 		f.write( SIZEY + "\n")
 		f.write( SIZEZ + "\n")
 		f.write( SliceOnPrinter + "\n")
-		f.write( currentRaftOfsetX + "\n")
-		f.write( currentRaftOfsetY + "\n")
-		f.write( currentRaftOfsetZ + "\n")
+		f.write( printerPositionOffsetOverideX + "\n")
+		f.write( printerPositionOffsetOverideY + "\n")
+		f.write( printerPositionOffsetOverideZ + "\n")
 		f.close()
 
 	try:
@@ -124,7 +130,7 @@ def index():
 	except:
 		PLUGINFUNCTIONS = ""
 
-	return render_template('index.html', AutoDropSerialPort = AutoDropSerialPort , AutoDropSerialPortSpeed = AutoDropSerialPortSpeed, printerServer = printerServer , printerName = printerName, printerMaterial = printerMaterial, SIZEX = SIZEX, SIZEY = SIZEY , SIZEZ = SIZEZ, STARTGCODE = STARTGCODE, ENDGCODE = ENDGCODE, PLUGINFUNCTIONS = PLUGINFUNCTIONS, SliceOnPrinter = SliceOnPrinter, currentRaftOfsetX = currentRaftOfsetX, currentRaftOfsetY = currentRaftOfsetY, currentRaftOfsetZ = currentRaftOfsetZ)
+	return render_template('index.html', AutoDropSerialPort = AutoDropSerialPort , AutoDropSerialPortSpeed = AutoDropSerialPortSpeed, printerServer = printerServer , printerName = printerName, printerMaterial = printerMaterial, SIZEX = SIZEX, SIZEY = SIZEY , SIZEZ = SIZEZ, STARTGCODE = STARTGCODE, ENDGCODE = ENDGCODE, PLUGINFUNCTIONS = PLUGINFUNCTIONS, SliceOnPrinter = SliceOnPrinter, printerPositionOffsetOverideX = printerPositionOffsetOverideX, printerPositionOffsetOverideY = printerPositionOffsetOverideY, printerPositionOffsetOverideZ = printerPositionOffsetOverideZ)
 
 
 
@@ -160,18 +166,18 @@ def EjectStuff():
 
 
 def offsetGcodeDuringRaft(orgNonManipulatedString = ""):
-	global currentRaftOfsetX, currentRaftOfsetY, currentRaftOfsetZ
+	global printerPositionOffsetOverideX, printerPositionOffsetOverideY, printerPositionOffsetOverideZ, raftOffsetX, raftOffsetY, raftOffsetZ
 	ManipulatedString = ""
 	for member in orgNonManipulatedString.split( ):
 		if (member[0] == "X"):
 			member = member.replace("X","")
-			member = "X" + str(round(float(member) + float(currentRaftOfsetX), 6) )
+			member = "X" + str(round(float(member) + float(printerPositionOffsetOverideX) + raftOffsetX, 6) )
 		if (member[0] == "Y"):
 			member = member.replace("Y","")
-			member = "Y" + str(round(float(member) + float(currentRaftOfsetY), 6) )
+			member = "Y" + str(round(float(member) + float(printerPositionOffsetOverideY) + raftOffsetY, 6) )
 		if (member[0] == "Z"):
 			member = member.replace("Z","")
-			member = "Z" + str(round(float(member) + float(currentRaftOfsetZ), 6) )
+			member = "Z" + str(round(float(member) + float(printerPositionOffsetOverideZ) + raftOffsetZ, 6) )
 
 		ManipulatedString = ManipulatedString + " " + member + " "
 
@@ -198,8 +204,8 @@ def SendGcodeLine(ll = ''):
 
 
 def PrintFile(gcodeFileName = 'test.g'):
-	global s, currentPrintModeIsRafting, currentRaftOfsetY
-	currentRaftOfsetY = 0
+	global s, currentPrintModeIsRafting, raftOffsetX, raftOffsetY, raftOffsetZ
+	raftOffsetY = 0
 
 
 	s = serial.Serial(AutoDropSerialPort,AutoDropSerialPortSpeed)
@@ -223,7 +229,7 @@ def PrintFile(gcodeFileName = 'test.g'):
 
 			if l.startswith(b';LAYER:-2'):
 				currentPrintModeIsRafting = currentPrintModeIsRafting + 1
-				currentRaftOfsetY = currentRaftOfsetY - .5
+				raftOffsetY = raftOffsetY - .5
 			if l.startswith(b';LAYER:0'):
 				currentPrintModeIsRafting = 0
 			if str(l).find(";@") != -1:
@@ -266,7 +272,7 @@ if ServerTestMode == "on":
 
 @app.route('/manualcontroll',methods = ['GET', 'POST'])
 def manualcontroll():
-	global s, currentRaftOfsetX , currentRaftOfsetY, currentRaftOfsetZ
+	global s, printerPositionOffsetOverideX , printerPositionOffsetOverideY, printerPositionOffsetOverideZ
 	s = serial.Serial(AutoDropSerialPort,AutoDropSerialPortSpeed)
 	piceOfGcodeToSend = request.args['gcode']
 	SendGcodeLine(offsetGcodeDuringRaft(piceOfGcodeToSend))
