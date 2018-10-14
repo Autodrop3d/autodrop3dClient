@@ -21,6 +21,12 @@ app = Flask(__name__)
 s = '';
 
 
+currentRaftOfsetX = 0
+currentRaftOfsetY = 0
+currentRaftOfsetZ = 40
+
+currentPrintModeIsRafting = 0
+
 
 f = open("settings.txt",'r');
 AutoDropSerialPort = str(f.readline()).strip()
@@ -32,14 +38,13 @@ SIZEX = str(f.readline()).strip()
 SIZEY = str(f.readline()).strip()
 SIZEZ = str(f.readline()).strip()
 SliceOnPrinter = str(f.readline()).strip()
+currentRaftOfsetX  = str(f.readline()).strip()
+currentRaftOfsetY  = str(f.readline()).strip()
+currentRaftOfsetZ  = str(f.readline()).strip()
 f.close()
 
 
-currentRaftOfsetX = 0
-currentRaftOfsetY = 0
-currentRaftOfsetZ = 0
 
-currentPrintModeIsRafting = 0
 
 
 
@@ -48,7 +53,7 @@ CuraSlicerPathAndCommand = "CuraEngine -v -c cura.ini -s posx=0 -s posy=0 {optio
 
 @app.route('/',methods = ['GET', 'POST'])
 def index():
-	global AutoDropSerialPort,AutoDropSerialPortSpeed, printerServer, printerName, printerMaterial ,SIZEX, SIZEY, SIZEZ, SliceOnPrinter
+	global AutoDropSerialPort,AutoDropSerialPortSpeed, printerServer, printerName, printerMaterial ,SIZEX, SIZEY, SIZEZ, SliceOnPrinter, currentRaftOfsetX, currentRaftOfsetY, currentRaftOfsetZ
 
 	if request.method == 'POST':
 
@@ -69,6 +74,11 @@ def index():
 		SIZEZ = request.form['SIZEZ']
 
 		SliceOnPrinter = request.form['SliceOnPrinter']
+
+		currentRaftOfsetX = request.form['currentRaftOfsetX']
+		currentRaftOfsetY = request.form['currentRaftOfsetY']
+		currentRaftOfsetZ = request.form['currentRaftOfsetZ']
+
 
 		STARTGCODE = request.form['STARTGCODE'].replace("\r",'')
 		open("start.gcode",'w').write(STARTGCODE)
@@ -92,6 +102,9 @@ def index():
 		f.write( SIZEY + "\n")
 		f.write( SIZEZ + "\n")
 		f.write( SliceOnPrinter + "\n")
+		f.write( currentRaftOfsetX + "\n")
+		f.write( currentRaftOfsetY + "\n")
+		f.write( currentRaftOfsetZ + "\n")
 		f.close()
 
 	try:
@@ -111,7 +124,9 @@ def index():
 	except:
 		PLUGINFUNCTIONS = ""
 
-	return render_template('index.html', AutoDropSerialPort = AutoDropSerialPort , AutoDropSerialPortSpeed = AutoDropSerialPortSpeed, printerServer = printerServer , printerName = printerName, printerMaterial = printerMaterial, SIZEX = SIZEX, SIZEY = SIZEY , SIZEZ = SIZEZ, STARTGCODE = STARTGCODE, ENDGCODE = ENDGCODE, PLUGINFUNCTIONS = PLUGINFUNCTIONS, SliceOnPrinter = SliceOnPrinter)
+	return render_template('index.html', AutoDropSerialPort = AutoDropSerialPort , AutoDropSerialPortSpeed = AutoDropSerialPortSpeed, printerServer = printerServer , printerName = printerName, printerMaterial = printerMaterial, SIZEX = SIZEX, SIZEY = SIZEY , SIZEZ = SIZEZ, STARTGCODE = STARTGCODE, ENDGCODE = ENDGCODE, PLUGINFUNCTIONS = PLUGINFUNCTIONS, SliceOnPrinter = SliceOnPrinter, currentRaftOfsetX = currentRaftOfsetX, currentRaftOfsetY = currentRaftOfsetY, currentRaftOfsetZ = currentRaftOfsetZ)
+
+
 
 
 
@@ -150,15 +165,15 @@ def offsetGcodeDuringRaft(orgNonManipulatedString = ""):
 	for member in orgNonManipulatedString.split( ):
 		if (member[0] == "X"):
 			member = member.replace("X","")
-			member = "X" + str(round(float(member) + currentRaftOfsetX, 6) )
+			member = "X" + str(round(float(member) + float(currentRaftOfsetX), 6) )
 		if (member[0] == "Y"):
 			member = member.replace("Y","")
-			member = "Y" + str(round(float(member) + currentRaftOfsetY, 6) )
+			member = "Y" + str(round(float(member) + float(currentRaftOfsetY), 6) )
 		if (member[0] == "Z"):
 			member = member.replace("Z","")
-			member = "Z" + str(round(float(member) + currentRaftOfsetZ, 6) )
+			member = "Z" + str(round(float(member) + float(currentRaftOfsetZ), 6) )
 
-		ManipulatedString = ManipulatedString + " " + member
+		ManipulatedString = ManipulatedString + " " + member + " "
 
 	ManipulatedString = ManipulatedString.strip()
 	print("ORG GCODE " + orgNonManipulatedString)
@@ -247,6 +262,15 @@ if ServerTestMode == "on":
 	while 1:
 		time.sleep(10)
 		print("fake looping for printer")
+
+
+@app.route('/manualcontroll',methods = ['GET', 'POST'])
+def manualcontroll():
+	global s, currentRaftOfsetX , currentRaftOfsetY, currentRaftOfsetZ
+	s = serial.Serial(AutoDropSerialPort,AutoDropSerialPortSpeed)
+	piceOfGcodeToSend = request.args['gcode']
+	SendGcodeLine(offsetGcodeDuringRaft(piceOfGcodeToSend))
+	return piceOfGcodeToSend
 
 def MainPrinterLoop():
 	global AutoDropSerialPort,AutoDropSerialPortSpeed, printerServer, printerName, printerMaterial ,SIZEX, SIZEY, SIZEZ ,SliceOnPrinter

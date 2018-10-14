@@ -1,9 +1,12 @@
 /dev/ttyS0
-76800
+115200
 http://autodrop3d.com/printerinterface/gcode
-NEW-GCODE-CLIENT
+ANET-A4
 PLA-YELLOW
-120
-120
-300
+100
+100
+200
 false
+0
+0
+40
