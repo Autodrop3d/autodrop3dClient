@@ -1,4 +1,4 @@
 #!/bin/sh
-cd /home/pi/autodrop3dClient
+cd /autodrop3dClient
 
 ./AutoDrop.py
