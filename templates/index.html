@@ -1794,10 +1794,15 @@
     </form>
 
     <div id="machineControll" class="w3-container w3-border city" style="display:none">
+
         <span>
           machines controll page
         </span><br>
+        <div>
+          <img name='camera'  id='camera' src="image.png"></img>
+          <br><button onclick='document.getElementById("camera").src = "image.png?time=" + new Date().getTime(); ;'>Refresh</button><br>
 
+        </div>
         <a href="./manualcontroll?gcode=G28" target="gcodeSenderResult">HOME MACHINE</a><br>
         <a href="./manualcontroll?gcode=G1 X0 Y0 Z0" target="gcodeSenderResult">GOTO 0,0,0</a><br>
         <input id="gcodeToSend" ></input> <button onclick="

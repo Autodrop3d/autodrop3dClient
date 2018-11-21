@@ -1,5 +1,6 @@
 sudo apt-get install python3
 sudo apt-get install python3-pip
+sudo apt-get install fswebcam
 
 
 sudo cp -a /. /autodrop3dClient/

@@ -1,11 +1,15 @@
 #! /usr/bin/env python3
-ServerTestMode="off"
+ServerTestMode="on"
 
 
 import _thread
 import time
 from urllib.request import urlretrieve
 from flask import Flask, render_template, request
+import subprocess
+
+
+
 
 if ServerTestMode != "on":
 	try:
@@ -55,6 +59,11 @@ f.close()
 
 
 CuraSlicerPathAndCommand = "CuraEngine -v -c cura.ini -s posx=0 -s posy=0 {options} -o {OutFile}.gcode {inFile}.stl    2>&1";
+
+@app.route('/image.png')
+def liveImageFile():
+	subprocess.call('fswebcam -S 20 ./static/junk.png', shell=True)
+	return app.send_static_file('junk.png')
 
 
 @app.route('/',methods = ['GET', 'POST'])
@@ -277,6 +286,9 @@ def manualcontroll():
 	piceOfGcodeToSend = request.args['gcode']
 	SendGcodeLine(offsetGcodeDuringRaft(piceOfGcodeToSend))
 	return piceOfGcodeToSend
+
+
+
 
 def MainPrinterLoop():
 	global AutoDropSerialPort,AutoDropSerialPortSpeed, printerServer, printerName, printerMaterial ,SIZEX, SIZEY, SIZEZ ,SliceOnPrinter
