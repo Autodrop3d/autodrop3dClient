@@ -1,5 +1,5 @@
 #! /usr/bin/env python3
-ServerTestMode="on"
+ServerTestMode="off"
 
 
 import _thread
@@ -43,10 +43,6 @@ AutoDropSerialPort = str(f.readline()).strip()
 AutoDropSerialPortSpeed = str(f.readline()).strip()
 printerServer = str(f.readline()).strip()
 printerName = str(f.readline()).strip()
-printerMaterial = str(f.readline()).strip()
-SIZEX = str(f.readline()).strip()
-SIZEY = str(f.readline()).strip()
-SIZEZ = str(f.readline()).strip()
 SliceOnPrinter = str(f.readline()).strip()
 printerPositionOffsetOverideX  = str(f.readline()).strip()
 printerPositionOffsetOverideY  = str(f.readline()).strip()
@@ -68,7 +64,7 @@ def liveImageFile():
 
 @app.route('/',methods = ['GET', 'POST'])
 def index():
-	global AutoDropSerialPort,AutoDropSerialPortSpeed, printerServer, printerName, printerMaterial ,SIZEX, SIZEY, SIZEZ, SliceOnPrinter, printerPositionOffsetOverideX, printerPositionOffsetOverideY, printerPositionOffsetOverideZ
+	global AutoDropSerialPort,AutoDropSerialPortSpeed, printerServer, printerName, SliceOnPrinter, printerPositionOffsetOverideX, printerPositionOffsetOverideY, printerPositionOffsetOverideZ
 
 	if request.method == 'POST':
 
@@ -80,28 +76,12 @@ def index():
 
 		printerName = request.form['printerName']
 
-		printerMaterial  = request.form['printerMaterial']
-
-		SIZEX = request.form['SIZEX']
-
-		SIZEY = request.form['SIZEY']
-
-		SIZEZ = request.form['SIZEZ']
-
 		SliceOnPrinter = request.form['SliceOnPrinter']
+
 
 		printerPositionOffsetOverideX = request.form['printerPositionOffsetOverideX']
 		printerPositionOffsetOverideY = request.form['printerPositionOffsetOverideY']
 		printerPositionOffsetOverideZ = request.form['printerPositionOffsetOverideZ']
-
-
-		STARTGCODE = request.form['STARTGCODE'].replace("\r",'')
-		open("start.gcode",'w').write(STARTGCODE)
-
-
-		ENDGCODE = request.form['ENDGCODE'].replace("\r",'')
-		open("end.gcode",'w').write(ENDGCODE)
-
 
 		PLUGINFUNCTIONS = request.form['PLUGINFUNCTIONS'].replace("\r",'')
 		open("custom.py",'w').write(PLUGINFUNCTIONS)
@@ -112,26 +92,11 @@ def index():
 		f.write( AutoDropSerialPortSpeed + "\n")
 		f.write( printerServer + "\n")
 		f.write( printerName + "\n")
-		f.write( printerMaterial + "\n")
-		f.write( SIZEX + "\n")
-		f.write( SIZEY + "\n")
-		f.write( SIZEZ + "\n")
 		f.write( SliceOnPrinter + "\n")
 		f.write( printerPositionOffsetOverideX + "\n")
 		f.write( printerPositionOffsetOverideY + "\n")
 		f.write( printerPositionOffsetOverideZ + "\n")
 		f.close()
-
-	try:
-		STARTGCODE = open("start.gcode",'r').read()
-	except:
-		STARTGCODE = ""
-
-
-	try:
-		ENDGCODE = open("end.gcode",'r').read()
-	except:
-		ENDGCODE = ""
 
 
 	try:
@@ -139,7 +104,7 @@ def index():
 	except:
 		PLUGINFUNCTIONS = ""
 
-	return render_template('index.html', AutoDropSerialPort = AutoDropSerialPort , AutoDropSerialPortSpeed = AutoDropSerialPortSpeed, printerServer = printerServer , printerName = printerName, printerMaterial = printerMaterial, SIZEX = SIZEX, SIZEY = SIZEY , SIZEZ = SIZEZ, STARTGCODE = STARTGCODE, ENDGCODE = ENDGCODE, PLUGINFUNCTIONS = PLUGINFUNCTIONS, SliceOnPrinter = SliceOnPrinter, printerPositionOffsetOverideX = printerPositionOffsetOverideX, printerPositionOffsetOverideY = printerPositionOffsetOverideY, printerPositionOffsetOverideZ = printerPositionOffsetOverideZ)
+	return render_template('index.html', AutoDropSerialPort = AutoDropSerialPort , AutoDropSerialPortSpeed = AutoDropSerialPortSpeed, printerServer = printerServer , printerName = printerName,  PLUGINFUNCTIONS = PLUGINFUNCTIONS, SliceOnPrinter = SliceOnPrinter, printerPositionOffsetOverideX = printerPositionOffsetOverideX, printerPositionOffsetOverideY = printerPositionOffsetOverideY, printerPositionOffsetOverideZ = printerPositionOffsetOverideZ)
 
 
 
@@ -291,56 +256,34 @@ def manualcontroll():
 
 
 def MainPrinterLoop():
-	global AutoDropSerialPort,AutoDropSerialPortSpeed, printerServer, printerName, printerMaterial ,SIZEX, SIZEY, SIZEZ ,SliceOnPrinter
+	global AutoDropSerialPort,AutoDropSerialPortSpeed, printerServer, printerName, SliceOnPrinter
 	while 1: #loop for ever
-		URLtoDownload = printerServer + "?name=" + printerName +  "&material=" + printerMaterial + "&SizeX=" + 	SIZEX +"&SizeY=" + SIZEY + "&SizeZ=" + SIZEZ + "&NoGcode=" + SliceOnPrinter
+		URLtoDownload = printerServer + "?name=" + printerName +  "&NoGcode=" + SliceOnPrinter
 		urlretrieveWithFail(URLtoDownload, "download.g")
 		print(URLtoDownload)
 		f = open("download.g",'r');
 		serverMsg = str(f.readline())
 		print(str(serverMsg))
 
-		if serverMsg.find(";start") == -1:
+		if serverMsg.find(";START") == -1:
 			print("Np print job for you")
 			f.close()
 		else:
 			bla = str(f.readline()).strip()
 			PrintNumber = str(f.readline()).replace(";","").strip()
 
-			bla = str(f.readline()).strip()
-			bla = str(f.readline()).strip()
-			bla = str(f.readline()).strip()
-			bla = str(f.readline()).strip()
-			bla = str(f.readline()).strip()
-			bla = str(f.readline()).strip()
-			bla = str(f.readline()).strip()
-			PrintDimensions =  bla.replace(";","").strip().split(".")
-
-			PrintDimensionsX = int(PrintDimensions[1])
-			PrintDimensionsY = int(PrintDimensions[2])
-			PrintDimensionsX = int(round((PrintDimensionsX +10) /10.0)*10.0)
-			PrintDimensionsY = int(round((PrintDimensionsY +10) /10.0)*10.0)
-
-			print("Size x = ")
-			print(PrintDimensionsX)
-
-			print("Size y = ")
-			print(PrintDimensionsY)
-
-			print("Print Dimensions are")
-			print(PrintDimensions )
 
 			print("PrintNumber=" + PrintNumber)
 
 			f.close()
-			PrintFile("start.gcode")
-			#PrintFile("./Batch Raft Builder/" + str(PrintDimensionsX) + "x" + str(PrintDimensionsY) + ".gcode" )
 
-			#PrintFile("SetPostion.gcode")
-
+			#PrintFile("start.gcode")
 			PrintFile("download.g")
-			PrintFile("end.gcode")
+			#PrintFile("end.gcode")
 
+			URLtoDownload = printerServer + "?jobID=" + PrintNumber + "&stat=Done"
+			print(URLtoDownload)
+			urlretrieveWithFail(URLtoDownload, "download.g")
 
 			URLtoDownload = printerServer + "?jobID=" + PrintNumber + "&stat=Done"
 			print(URLtoDownload)

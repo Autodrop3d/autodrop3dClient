@@ -1,8 +1,8 @@
 /dev/ttyS0
 115200
-http://autodrop3d.com/printerinterface/gcode
-ANET-A4
-PLA-YELLOW
+https://autodrop.sparkhosted.site/api/jobsQueue/printerRequestJob
+5bde7b0ae536ab6c65e797ae
+RED
 100
 100
 200
