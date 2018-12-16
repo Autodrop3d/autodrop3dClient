@@ -163,6 +163,8 @@ def offsetGcodeDuringRaft(orgNonManipulatedString = ""):
 
 	ManipulatedString = ""
 	locationMoved = 0
+	extrudeMoveStuff = ""
+	MoveStuffSpeed = ""
 	for member in orgNonManipulatedString.split( ):
 		if (member[0] == "X"):
 			member = member.replace("X","")
@@ -176,6 +178,14 @@ def offsetGcodeDuringRaft(orgNonManipulatedString = ""):
 			member = member.replace("Z","")
 			printerPositionCurrentZ = float(member)
 			locationMoved = 1
+		if (member[0] == "E"):
+			extrudeMoveStuff = member
+			locationMoved = 1
+		if (member[0] == "F"):
+			MoveStuffSpeed = member
+			locationMoved = 1
+
+
 		if(locationMoved == 0):
 			ManipulatedString = ManipulatedString + " " + member
 
@@ -187,9 +197,11 @@ def offsetGcodeDuringRaft(orgNonManipulatedString = ""):
 	printerPositionCurrentLeveledZ = translatedPoint[2]
 
 	if(locationMoved == 1):
+		ManipulatedString = ManipulatedString + " " + MoveStuffSpeed + " "
 		ManipulatedString = ManipulatedString + " " + "X" + str(round(printerPositionCurrentLeveledX + float(printerPositionOffsetOverideX) + raftOffsetX, 6)) + " "
 		ManipulatedString = ManipulatedString + " " + "Y" + str(round(printerPositionCurrentLeveledY + float(printerPositionOffsetOverideY) + raftOffsetY, 6)) + " "
 		ManipulatedString = ManipulatedString + " " + "Z" + str(round(printerPositionCurrentLeveledZ + float(printerPositionOffsetOverideZ) + raftOffsetZ, 6)) + " "
+		ManipulatedString = ManipulatedString + " " + extrudeMoveStuff
 
 
 
