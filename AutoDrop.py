@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 ServerTestMode="off"
 
-
+import coordsTransform
 import _thread
 import time
 from urllib.request import urlretrieve
@@ -34,6 +34,12 @@ raftOffsetY = 0
 raftOffsetZ = 0
 
 
+printerPositionCurrentX = 0
+printerPositionCurrentY = 0
+printerPositionCurrentZ = 0
+
+
+
 
 currentPrintModeIsRafting = 0
 
@@ -54,7 +60,7 @@ f.close()
 
 
 
-
+inst = coordsTransform.CoordTransformer([[0,50,float(levelingPointA)],[-50,-50,float(levelingPointB)],[50,-50,float(levelingPointC)]])
 
 
 CuraSlicerPathAndCommand = "CuraEngine -v -c cura.ini -s posx=0 -s posy=0 {options} -o {OutFile}.gcode {inFile}.stl    2>&1";
@@ -152,20 +158,43 @@ def EjectStuff():
 
 
 def offsetGcodeDuringRaft(orgNonManipulatedString = ""):
-	global printerPositionOffsetOverideX, printerPositionOffsetOverideY, printerPositionOffsetOverideZ, raftOffsetX, raftOffsetY, raftOffsetZ
+	global printerPositionOffsetOverideX, printerPositionOffsetOverideY, printerPositionOffsetOverideZ, raftOffsetX, raftOffsetY, raftOffsetZ, printerPositionCurrentX, printerPositionCurrentY, printerPositionCurrentZ, inst
+	printerPositionCurrentX, printerPositionCurrentY, printerPositionCurrentZ
+
 	ManipulatedString = ""
+	locationMoved = 0
 	for member in orgNonManipulatedString.split( ):
 		if (member[0] == "X"):
 			member = member.replace("X","")
-			member = "X" + str(round(float(member) + float(printerPositionOffsetOverideX) + raftOffsetX, 6) )
+			printerPositionCurrentX = float(member)
+			locationMoved = 1
 		if (member[0] == "Y"):
 			member = member.replace("Y","")
-			member = "Y" + str(round(float(member) + float(printerPositionOffsetOverideY) + raftOffsetY, 6) )
+			printerPositionCurrentY = float(member)
+			locationMoved = 1
 		if (member[0] == "Z"):
 			member = member.replace("Z","")
-			member = "Z" + str(round(float(member) + float(printerPositionOffsetOverideZ) + raftOffsetZ, 6) )
+			printerPositionCurrentZ = float(member)
+			locationMoved = 1
+		if(locationMoved == 0):
+			ManipulatedString = ManipulatedString + " " + member
 
-		ManipulatedString = ManipulatedString + " " + member + " "
+
+	translatedPoint = inst.Transform([printerPositionCurrentX,printerPositionCurrentY,printerPositionCurrentZ]);
+	print( translatedPoint )
+	printerPositionCurrentLeveledX = translatedPoint[0]
+	printerPositionCurrentLeveledY = translatedPoint[1]
+	printerPositionCurrentLeveledZ = translatedPoint[2]
+
+	if(locationMoved == 1):
+		ManipulatedString = ManipulatedString + " " + "X" + str(round(printerPositionCurrentLeveledX + float(printerPositionOffsetOverideX) + raftOffsetX, 6)) + " "
+		ManipulatedString = ManipulatedString + " " + "Y" + str(round(printerPositionCurrentLeveledY + float(printerPositionOffsetOverideY) + raftOffsetY, 6)) + " "
+		ManipulatedString = ManipulatedString + " " + "Z" + str(round(printerPositionCurrentLeveledZ + float(printerPositionOffsetOverideZ) + raftOffsetZ, 6)) + " "
+
+
+
+
+
 
 	ManipulatedString = ManipulatedString.strip()
 	print("ORG GCODE " + orgNonManipulatedString)
@@ -261,7 +290,7 @@ def manualcontroll():
 	global s, printerPositionOffsetOverideX , printerPositionOffsetOverideY, printerPositionOffsetOverideZ
 	s = serial.Serial(AutoDropSerialPort,AutoDropSerialPortSpeed)
 	piceOfGcodeToSend = request.args['gcode']
-	SendGcodeLine(offsetGcodeDuringRaft(piceOfGcodeToSend))
+	SendGcodeLine(piceOfGcodeToSend)
 	return piceOfGcodeToSend
 
 
