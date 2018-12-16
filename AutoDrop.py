@@ -47,6 +47,9 @@ SliceOnPrinter = str(f.readline()).strip()
 printerPositionOffsetOverideX  = str(f.readline()).strip()
 printerPositionOffsetOverideY  = str(f.readline()).strip()
 printerPositionOffsetOverideZ  = str(f.readline()).strip()
+levelingPointA = str(f.readline()).strip()
+levelingPointB = str(f.readline()).strip()
+levelingPointC = str(f.readline()).strip()
 f.close()
 
 
@@ -64,7 +67,7 @@ def liveImageFile():
 
 @app.route('/',methods = ['GET', 'POST'])
 def index():
-	global AutoDropSerialPort,AutoDropSerialPortSpeed, printerServer, printerName, SliceOnPrinter, printerPositionOffsetOverideX, printerPositionOffsetOverideY, printerPositionOffsetOverideZ
+	global AutoDropSerialPort,AutoDropSerialPortSpeed, printerServer, printerName, SliceOnPrinter, printerPositionOffsetOverideX, printerPositionOffsetOverideY, printerPositionOffsetOverideZ, levelingPointA, levelingPointB, levelingPointC
 
 	if request.method == 'POST':
 
@@ -77,6 +80,12 @@ def index():
 		printerName = request.form['printerName']
 
 		SliceOnPrinter = request.form['SliceOnPrinter']
+
+
+		levelingPointA = request.form['levelingPointA']
+		levelingPointB = request.form['levelingPointB']
+		levelingPointC = request.form['levelingPointC']
+
 
 
 		printerPositionOffsetOverideX = request.form['printerPositionOffsetOverideX']
@@ -96,6 +105,9 @@ def index():
 		f.write( printerPositionOffsetOverideX + "\n")
 		f.write( printerPositionOffsetOverideY + "\n")
 		f.write( printerPositionOffsetOverideZ + "\n")
+		f.write( levelingPointA + "\n")
+		f.write( levelingPointB + "\n")
+		f.write( levelingPointC + "\n")
 		f.close()
 
 
@@ -104,7 +116,7 @@ def index():
 	except:
 		PLUGINFUNCTIONS = ""
 
-	return render_template('index.html', AutoDropSerialPort = AutoDropSerialPort , AutoDropSerialPortSpeed = AutoDropSerialPortSpeed, printerServer = printerServer , printerName = printerName,  PLUGINFUNCTIONS = PLUGINFUNCTIONS, SliceOnPrinter = SliceOnPrinter, printerPositionOffsetOverideX = printerPositionOffsetOverideX, printerPositionOffsetOverideY = printerPositionOffsetOverideY, printerPositionOffsetOverideZ = printerPositionOffsetOverideZ)
+	return render_template('index.html', AutoDropSerialPort = AutoDropSerialPort , AutoDropSerialPortSpeed = AutoDropSerialPortSpeed, printerServer = printerServer , printerName = printerName,  PLUGINFUNCTIONS = PLUGINFUNCTIONS, SliceOnPrinter = SliceOnPrinter, printerPositionOffsetOverideX = printerPositionOffsetOverideX, printerPositionOffsetOverideY = printerPositionOffsetOverideY, printerPositionOffsetOverideZ = printerPositionOffsetOverideZ, levelingPointA = levelingPointA, levelingPointB = levelingPointB, levelingPointC = levelingPointC)
 
 
 
