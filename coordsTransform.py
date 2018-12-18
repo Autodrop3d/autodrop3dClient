@@ -2,7 +2,7 @@
 """
 Created on Sat Nov 24 17:57:51 2018
 
-@author: 286
+@author: ifrommer
 
 WARNING: THIS IS QUICK AND DIRTY.
 I DID A LITTLE TESTING BUT IT LIKELY NEEDS SOME WORK.
