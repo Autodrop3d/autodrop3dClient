@@ -55,19 +55,19 @@ class CoordTransformer:
         coordsToTransform = self.PtsToNPs(coordsToTransform)
         # Compute transformed coords
         newPt = self.newCenter + self.m2.dot(coordsToTransform)
-        return newPt  # convert back to list for return
+        return newPt  
 
     # Compute new coordinate axes given 3 points on the plane
     # @ ptA, ptB, and ptC are numpy arrays of coords for 3 points
     def NewCoordAxes(self, ptA, ptB, ptC):
         ptO = self.newCenter
-        vectOA = ptA - ptO
-        vectOy = vectOA / np.linalg.norm(vectOA)
-        vectBC = ptC - ptB
-        vectOx = vectBC / np.linalg.norm(vectBC)
-        vectOz = np.cross(vectOx,vectOy)
+        vectOA = ptA - ptO      
+        vectOy = vectOA / np.linalg.norm(vectOA)    
+        vectBC = ptC - ptB     
+        vectOx = vectBC / np.linalg.norm(vectBC)    
+        vectOz = np.cross(vectOx,vectOy)    
 
-        # N2 is the cross product between two normalized vectors
+        # Return the new coordinate axis vectors
         return (vectOx, vectOy, vectOz)
 
     # Convert list of points to np array
