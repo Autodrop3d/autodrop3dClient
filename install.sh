@@ -9,7 +9,8 @@ sudo chmod 755 -R /autodrop3dClient
 
 cd /autodrop3dClient
 pip3 install -r requirements.txt
-
+pip3 install flask
+sudo apt install python-serial
 
 #Create the file for the service to be added
 sudo cp /autodrop3dClient/AD3D.service /lib/systemd/system/AD3D.service
