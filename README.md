@@ -10,6 +10,3 @@ There are additional features to make automatic part ejection possible by toggli
 
 When this script is run a web server will start serving on port 8080 from the pi. 
 You can then go to that address and modify the settings for the printer, configure your autodrop3d url and serial interface/basud speed.
-
-Reverted to version befor the software leveling. Working tried and tested version. 
-

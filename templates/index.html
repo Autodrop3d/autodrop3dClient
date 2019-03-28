@@ -1727,7 +1727,7 @@
         <button class="w3-bar-item w3-button tablink" onclick="ShowTab(event,'Advanced')">
           Advanced GCODE &Macros
         </button>
-        <button class="w3-bar-item w3-button tablink" onclick="ShowTab(event,'machineControl')">
+        <button class="w3-bar-item w3-button tablink" onclick="ShowTab(event,'machineControll')">
           Machine Controll
         </button>
 
@@ -1756,16 +1756,6 @@
             <input type="text" name="printerPositionOffsetOverideZ" value="{{ printerPositionOffsetOverideZ }}"><br>
 
 
-            LEVELING POINT A:<br>
-            <input type="text" name="levelingPointA" value="{{ levelingPointA }}"><br>
-            LEVELING POINT B:<br>
-            <input type="text" name="levelingPointB" value="{{ levelingPointB }}"><br>
-            LEVELING POINT C:<br>
-            <input type="text" name="levelingPointC" value="{{ levelingPointC }}"><br>
-
-
-
-
 
 	        SliceOnPrinter:<br>
             <input type="text" id="SliceOnPrinter" name="SliceOnPrinter" value="{{ SliceOnPrinter }}" readonly="readonly" onclick='
@@ -1790,7 +1780,7 @@
 
     </form>
 
-    <div id="machineControl" class="w3-container w3-border city" style="display:none">
+    <div id="machineControll" class="w3-container w3-border city" style="display:none">
 
         <span>
           machines controll page

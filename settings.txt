@@ -1,14 +1,8 @@
 /dev/ttyS0
 115200
-https://autodrop.sparkhosted.site/api/jobsQueue/printerRequestJob
+https://go.autodrop3d.com/api/jobsQueue/printerRequestJob
 5bde7b0ae536ab6c65e797ae
 RED
-100
-100
-200
 0
-0
-0
-0
-0
-0
+-15
+39.2

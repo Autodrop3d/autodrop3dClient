@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 ServerTestMode="off"
 
-import coordsTransform
+
 import _thread
 import time
 from urllib.request import urlretrieve
@@ -34,12 +34,6 @@ raftOffsetY = 0
 raftOffsetZ = 0
 
 
-printerPositionCurrentX = 0
-printerPositionCurrentY = 0
-printerPositionCurrentZ = 0
-
-
-
 
 currentPrintModeIsRafting = 0
 
@@ -53,14 +47,11 @@ SliceOnPrinter = str(f.readline()).strip()
 printerPositionOffsetOverideX  = str(f.readline()).strip()
 printerPositionOffsetOverideY  = str(f.readline()).strip()
 printerPositionOffsetOverideZ  = str(f.readline()).strip()
-levelingPointA = str(f.readline()).strip()
-levelingPointB = str(f.readline()).strip()
-levelingPointC = str(f.readline()).strip()
 f.close()
 
 
 
-inst = coordsTransform.CoordTransformer([[0,50,float(levelingPointA)],[-50,-50,float(levelingPointB)],[50,-50,float(levelingPointC)]])
+
 
 
 CuraSlicerPathAndCommand = "CuraEngine -v -c cura.ini -s posx=0 -s posy=0 {options} -o {OutFile}.gcode {inFile}.stl    2>&1";
@@ -73,7 +64,7 @@ def liveImageFile():
 
 @app.route('/',methods = ['GET', 'POST'])
 def index():
-	global AutoDropSerialPort,AutoDropSerialPortSpeed, printerServer, printerName, SliceOnPrinter, printerPositionOffsetOverideX, printerPositionOffsetOverideY, printerPositionOffsetOverideZ, levelingPointA, levelingPointB, levelingPointC
+	global AutoDropSerialPort,AutoDropSerialPortSpeed, printerServer, printerName, SliceOnPrinter, printerPositionOffsetOverideX, printerPositionOffsetOverideY, printerPositionOffsetOverideZ
 
 	if request.method == 'POST':
 
@@ -86,12 +77,6 @@ def index():
 		printerName = request.form['printerName']
 
 		SliceOnPrinter = request.form['SliceOnPrinter']
-
-
-		levelingPointA = request.form['levelingPointA']
-		levelingPointB = request.form['levelingPointB']
-		levelingPointC = request.form['levelingPointC']
-
 
 
 		printerPositionOffsetOverideX = request.form['printerPositionOffsetOverideX']
@@ -111,9 +96,6 @@ def index():
 		f.write( printerPositionOffsetOverideX + "\n")
 		f.write( printerPositionOffsetOverideY + "\n")
 		f.write( printerPositionOffsetOverideZ + "\n")
-		f.write( levelingPointA + "\n")
-		f.write( levelingPointB + "\n")
-		f.write( levelingPointC + "\n")
 		f.close()
 
 
@@ -122,7 +104,7 @@ def index():
 	except:
 		PLUGINFUNCTIONS = ""
 
-	return render_template('index.html', AutoDropSerialPort = AutoDropSerialPort , AutoDropSerialPortSpeed = AutoDropSerialPortSpeed, printerServer = printerServer , printerName = printerName,  PLUGINFUNCTIONS = PLUGINFUNCTIONS, SliceOnPrinter = SliceOnPrinter, printerPositionOffsetOverideX = printerPositionOffsetOverideX, printerPositionOffsetOverideY = printerPositionOffsetOverideY, printerPositionOffsetOverideZ = printerPositionOffsetOverideZ, levelingPointA = levelingPointA, levelingPointB = levelingPointB, levelingPointC = levelingPointC)
+	return render_template('index.html', AutoDropSerialPort = AutoDropSerialPort , AutoDropSerialPortSpeed = AutoDropSerialPortSpeed, printerServer = printerServer , printerName = printerName,  PLUGINFUNCTIONS = PLUGINFUNCTIONS, SliceOnPrinter = SliceOnPrinter, printerPositionOffsetOverideX = printerPositionOffsetOverideX, printerPositionOffsetOverideY = printerPositionOffsetOverideY, printerPositionOffsetOverideZ = printerPositionOffsetOverideZ)
 
 
 
@@ -158,55 +140,20 @@ def EjectStuff():
 
 
 def offsetGcodeDuringRaft(orgNonManipulatedString = ""):
-	global printerPositionOffsetOverideX, printerPositionOffsetOverideY, printerPositionOffsetOverideZ, raftOffsetX, raftOffsetY, raftOffsetZ, printerPositionCurrentX, printerPositionCurrentY, printerPositionCurrentZ, inst
-	printerPositionCurrentX, printerPositionCurrentY, printerPositionCurrentZ
-
+	global printerPositionOffsetOverideX, printerPositionOffsetOverideY, printerPositionOffsetOverideZ, raftOffsetX, raftOffsetY, raftOffsetZ
 	ManipulatedString = ""
-	locationMoved = 0
-	extrudeMoveStuff = ""
-	MoveStuffSpeed = ""
 	for member in orgNonManipulatedString.split( ):
 		if (member[0] == "X"):
 			member = member.replace("X","")
-			printerPositionCurrentX = float(member)
-			locationMoved = 1
+			member = "X" + str(round(float(member) + float(printerPositionOffsetOverideX) + raftOffsetX, 6) )
 		if (member[0] == "Y"):
 			member = member.replace("Y","")
-			printerPositionCurrentY = float(member)
-			locationMoved = 1
+			member = "Y" + str(round(float(member) + float(printerPositionOffsetOverideY) + raftOffsetY, 6) )
 		if (member[0] == "Z"):
 			member = member.replace("Z","")
-			printerPositionCurrentZ = float(member)
-			locationMoved = 1
-		if (member[0] == "E"):
-			extrudeMoveStuff = member
-			locationMoved = 1
-		if (member[0] == "F"):
-			MoveStuffSpeed = member
-			locationMoved = 1
+			member = "Z" + str(round(float(member) + float(printerPositionOffsetOverideZ) + raftOffsetZ, 6) )
 
-
-		if(locationMoved == 0):
-			ManipulatedString = ManipulatedString + " " + member
-
-
-	translatedPoint = inst.Transform([printerPositionCurrentX,printerPositionCurrentY,printerPositionCurrentZ]);
-	print( translatedPoint )
-	printerPositionCurrentLeveledX = translatedPoint[0]
-	printerPositionCurrentLeveledY = translatedPoint[1]
-	printerPositionCurrentLeveledZ = translatedPoint[2]
-
-	if(locationMoved == 1):
-		ManipulatedString = ManipulatedString + " " + MoveStuffSpeed + " "
-		ManipulatedString = ManipulatedString + " " + "X" + str(round(printerPositionCurrentLeveledX + float(printerPositionOffsetOverideX) + raftOffsetX, 6)) + " "
-		ManipulatedString = ManipulatedString + " " + "Y" + str(round(printerPositionCurrentLeveledY + float(printerPositionOffsetOverideY) + raftOffsetY, 6)) + " "
-		ManipulatedString = ManipulatedString + " " + "Z" + str(round(printerPositionCurrentLeveledZ + float(printerPositionOffsetOverideZ) + raftOffsetZ, 6)) + " "
-		ManipulatedString = ManipulatedString + " " + extrudeMoveStuff
-
-
-
-
-
+		ManipulatedString = ManipulatedString + " " + member + " "
 
 	ManipulatedString = ManipulatedString.strip()
 	print("ORG GCODE " + orgNonManipulatedString)
@@ -302,7 +249,7 @@ def manualcontroll():
 	global s, printerPositionOffsetOverideX , printerPositionOffsetOverideY, printerPositionOffsetOverideZ
 	s = serial.Serial(AutoDropSerialPort,AutoDropSerialPortSpeed)
 	piceOfGcodeToSend = request.args['gcode']
-	SendGcodeLine(piceOfGcodeToSend)
+	SendGcodeLine(offsetGcodeDuringRaft(piceOfGcodeToSend))
 	return piceOfGcodeToSend
 
 
