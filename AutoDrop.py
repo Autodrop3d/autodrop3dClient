@@ -33,7 +33,10 @@ raftOffsetX = 0
 raftOffsetY = 0
 raftOffsetZ = 0
 
-
+CurrentlyPrintingRightNow = 0
+currentPrintLineNumber = 0
+currentPrintTotalLineNumber = 0
+PrintNumber = ""
 
 currentPrintModeIsRafting = 0
 
@@ -178,7 +181,7 @@ def SendGcodeLine(ll = ''):
 
 
 def PrintFile(gcodeFileName = 'test.g'):
-	global s, currentPrintModeIsRafting, raftOffsetX, raftOffsetY, raftOffsetZ
+	global s, currentPrintModeIsRafting, raftOffsetX, raftOffsetY, raftOffsetZ, currentPrintLineNumber, currentPrintTotalLineNumber, printerServer, printerName
 	raftOffsetY = 0
 
 
@@ -189,11 +192,15 @@ def PrintFile(gcodeFileName = 'test.g'):
 	s.flushInput()  # Flush startup text in serial input
 	s.write(('\r\n\r\n').encode("ascii"))
 
+	currentPrintTotalLineNumber = sum(1 for line in open(gcodeFileName))
 
 	f = open(gcodeFileName,'r');
+	currentPrintLineNumber = 0
+	CurrentlyPrintingRightNow = 1
 
 	# Stream g-code to grbl
 	for line in f:
+		currentPrintLineNumber += 1
 		l = line.strip() # Strip all EOL characters for consistency
 		l = l.encode("ascii")
 		l = l.strip();
@@ -223,10 +230,11 @@ def PrintFile(gcodeFileName = 'test.g'):
 				SendGcodeLine(ll)
 
 
-
+	
 	# Close file and serial port
 	f.close()
 	s.close()
+	CurrentlyPrintingRightNow = 0
 
 def urlretrieveWithFail(OptionA = "",OptionB = ""):
 	try:
@@ -252,11 +260,18 @@ def manualcontroll():
 	SendGcodeLine(offsetGcodeDuringRaft(piceOfGcodeToSend))
 	return piceOfGcodeToSend
 
-
+def StatusUpdateLoopWhilePrinting():
+	global currentPrintLineNumber, currentPrintTotalLineNumber, printerServer, printerName
+	while 1:
+		time.sleep(30)
+		howFarAlongInThePrintAreWe = (currentPrintLineNumber / currentPrintTotalLineNumber) * 100
+		URLtoDownload = printerServer + "?jobID=" + PrintNumber + "&stat=update&jobStatus="  + str(howFarAlongInThePrintAreWe)
+		print(URLtoDownload)
+		urlretrieveWithFail(URLtoDownload, "statupdate.txt")
 
 
 def MainPrinterLoop():
-	global AutoDropSerialPort,AutoDropSerialPortSpeed, printerServer, printerName, SliceOnPrinter
+	global AutoDropSerialPort,AutoDropSerialPortSpeed, printerServer, printerName, SliceOnPrinter, PrintNumber
 	while 1: #loop for ever
 		URLtoDownload = printerServer + "?name=" + printerName +  "&NoGcode=" + SliceOnPrinter
 		urlretrieveWithFail(URLtoDownload, "download.g")
@@ -293,5 +308,6 @@ def MainPrinterLoop():
 
 
 _thread.start_new_thread(MainPrinterLoop,())
+_thread.start_new_thread(StatusUpdateLoopWhilePrinting,())
 while 1:
 	time.sleep(10)
