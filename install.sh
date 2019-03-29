@@ -3,7 +3,7 @@ sudo apt-get install python3-pip
 sudo apt-get install fswebcam
 
 
-sudo cp -a /. /autodrop3dClient/
+sudo cp -a . /autodrop3dClient/
 sudo chmod 755 -R /autodrop3dClient
 
 
