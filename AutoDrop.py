@@ -10,13 +10,20 @@ import subprocess
 
 
 
+buttonsStopPin = 16
+buttonsRestartPin = 18
 
 if ServerTestMode != "on":
 	try:
 		import RPi.GPIO as GPIO
 		import serial
+		GPIO.setwarnings(False)
+		GPIO.setmode(GPIO.BOARD)
+		GPIO.setup(buttonsStopPin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+		GPIO.setup(buttonsRestartPin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+
 	except:
-			print("failed to start ras pi stuff")
+		print("failed to start ras pi stuff")
 
 
 
@@ -39,6 +46,7 @@ currentPrintTotalLineNumber = 0
 PrintNumber = ""
 
 currentPrintModeIsRafting = 0
+cancellCurentPrint = 0
 
 
 f = open("settings.txt",'r');
@@ -132,8 +140,7 @@ if __name__ == "__main__":
 
 def EjectStuff():
  	print("Ejecting Stuff")
- 	GPIO.setwarnings(False)
- 	GPIO.setmode(GPIO.BOARD)
+
  	GPIO.setup(12, GPIO.OUT)
  	GPIO.output(12, 1)
  	time.sleep(30)
@@ -167,11 +174,12 @@ def offsetGcodeDuringRaft(orgNonManipulatedString = ""):
 
 def SendGcodeLine(ll = ''):
 	print("Sending :" + ll)
+	s.flushInput()
 	s.write(ll.encode("ascii") + b'\n')
 
 	beReadingLines = 1
 
-	while beReadingLines :
+	while beReadingLines & cancellCurentPrint == 0:
 		grbl_out = str(s.readline(),"ascii") # Wait for grbl response with carriage return
 		print(' : ' + grbl_out.strip())
 		s.flushInput()
@@ -181,7 +189,7 @@ def SendGcodeLine(ll = ''):
 
 
 def PrintFile(gcodeFileName = 'test.g'):
-	global s, currentPrintModeIsRafting, raftOffsetX, raftOffsetY, raftOffsetZ, currentPrintLineNumber, currentPrintTotalLineNumber, printerServer, printerName
+	global s, cancellCurentPrint, currentPrintModeIsRafting, raftOffsetX, raftOffsetY, raftOffsetZ, currentPrintLineNumber, currentPrintTotalLineNumber, printerServer, printerName, PrintNumber, printerServer
 	raftOffsetY = 0
 
 
@@ -200,6 +208,8 @@ def PrintFile(gcodeFileName = 'test.g'):
 
 	# Stream g-code to grbl
 	for line in f:
+		if cancellCurentPrint == 1:
+			break
 		currentPrintLineNumber += 1
 		l = line.strip() # Strip all EOL characters for consistency
 		l = l.encode("ascii")
@@ -216,8 +226,16 @@ def PrintFile(gcodeFileName = 'test.g'):
 			if str(l).find(";@") != -1:
 				if str(l.split(b'@',1)[1],"ascii") == "eject":
 					EjectStuff()
+				elif str(l.split(b'@',1)[1],"ascii") == "notifycomplete":
+					URLtoDownload = printerServer + "?jobID=" + PrintNumber + "&stat=Done"
+					print(URLtoDownload)
+					urlretrieveWithFail(URLtoDownload, "notifyComplete.txt")
+					URLtoDownload = printerServer + "?jobID=" + PrintNumber + "&stat=Done"
+					print(URLtoDownload)
+					urlretrieveWithFail(URLtoDownload, "notifyComplete.txt")
+					while GPIO.input(buttonsRestartPin) == 1:
+						print("Hit button to continue")
 				else:
-
 					try:
 						exec(open("custom.py").read()+ "\n\n" + str(l.split(b'@',1)[1],"ascii"))
 					except:
@@ -261,18 +279,31 @@ def manualcontroll():
 	return piceOfGcodeToSend
 
 def StatusUpdateLoopWhilePrinting():
-	global currentPrintLineNumber, currentPrintTotalLineNumber, printerServer, printerName
+	global currentPrintLineNumber, currentPrintTotalLineNumber, printerServer, printerName, cancellCurentPrint
 	while 1:
-		time.sleep(30)
-		howFarAlongInThePrintAreWe = (currentPrintLineNumber / currentPrintTotalLineNumber) * 100
-		URLtoDownload = printerServer + "?jobID=" + PrintNumber + "&stat=update&jobStatus="  + str(howFarAlongInThePrintAreWe)
-		print(URLtoDownload)
-		urlretrieveWithFail(URLtoDownload, "statupdate.txt")
+		if currentPrintTotalLineNumber > 10:
+			time.sleep(30)
+			howFarAlongInThePrintAreWe = (currentPrintLineNumber / currentPrintTotalLineNumber) * 100
+			URLtoDownload = printerServer + "?jobID=" + PrintNumber + "&stat=update&jobStatus="  + str(howFarAlongInThePrintAreWe)
+			print(URLtoDownload)
+			urlretrieveWithFail(URLtoDownload, "statupdate.txt")
+			print(URLtoDownload)
+			ffff = open("statupdate.txt",'r');
+			serverMsg = str(ffff.readline())
+			ffff.close()
+
+			print(str(serverMsg))
+			if serverMsg.find("CANCELED") > -1:
+				print("Job should be canceled now")
+				cancellCurentPrint = 1
+
+
 
 
 def MainPrinterLoop():
-	global AutoDropSerialPort,AutoDropSerialPortSpeed, printerServer, printerName, SliceOnPrinter, PrintNumber
+	global AutoDropSerialPort,AutoDropSerialPortSpeed, printerServer, printerName, SliceOnPrinter, PrintNumber, cancellCurentPrint
 	while 1: #loop for ever
+		cancellCurentPrint = 0
 		URLtoDownload = printerServer + "?name=" + printerName +  "&NoGcode=" + SliceOnPrinter
 		urlretrieveWithFail(URLtoDownload, "download.g")
 		print(URLtoDownload)
@@ -296,13 +327,14 @@ def MainPrinterLoop():
 			PrintFile("download.g")
 			#PrintFile("end.gcode")
 
-			URLtoDownload = printerServer + "?jobID=" + PrintNumber + "&stat=Done"
-			print(URLtoDownload)
-			urlretrieveWithFail(URLtoDownload, "download.g")
+			if cancellCurentPrint == 0:
+				URLtoDownload = printerServer + "?jobID=" + PrintNumber + "&stat=Done"
+				print(URLtoDownload)
+				urlretrieveWithFail(URLtoDownload, "download.g")
 
-			URLtoDownload = printerServer + "?jobID=" + PrintNumber + "&stat=Done"
-			print(URLtoDownload)
-			urlretrieveWithFail(URLtoDownload, "download.g")
+				URLtoDownload = printerServer + "?jobID=" + PrintNumber + "&stat=Done"
+				print(URLtoDownload)
+				urlretrieveWithFail(URLtoDownload, "download.g")
 
 		time.sleep(10)
 
@@ -310,4 +342,14 @@ def MainPrinterLoop():
 _thread.start_new_thread(MainPrinterLoop,())
 _thread.start_new_thread(StatusUpdateLoopWhilePrinting,())
 while 1:
-	time.sleep(10)
+	time.sleep(.01)
+	#print(GPIO.input(buttonsStopPin))
+	if GPIO.input(buttonsStopPin) == 0:
+		cancellCurentPrint = 1
+		print("cancelling")
+
+
+
+
+
+
