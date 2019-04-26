@@ -182,15 +182,18 @@ def SendGcodeLine(ll = ''):
 	beReadingLines = 1
 
 	while beReadingLines:
-		print("waiting for that line back")
+		print("Sent : " + ll + " | waiting for response")
 		grbl_out = str(s.readline(),"ascii") # Wait for grbl response with carriage return
-		print("got that line back")
-		print(' : ' + grbl_out.strip())
+		#print("got that line back")
+		print('response : ' + grbl_out.strip())
 		s.flushInput()
 		beReadingLines = 0
 		if "T:" in grbl_out:
 			beReadingLines = 1
-
+		if "echo:busy" in  grbl_out:
+			beReadingLines = 1
+		if "ok " in grbl_out:
+			beReadingLines = 0
 
 def PrintFile(gcodeFileName = 'test.g'):
 	global s, cancellCurentPrint, currentPrintModeIsRafting, raftOffsetX, raftOffsetY, raftOffsetZ, currentPrintLineNumber, currentPrintTotalLineNumber, printerServer, printerName, PrintNumber, printerServer
