@@ -149,6 +149,8 @@ def EjectStuff():
 
 
 
+
+
 def offsetGcodeDuringRaft(orgNonManipulatedString = ""):
 	global printerPositionOffsetOverideX, printerPositionOffsetOverideY, printerPositionOffsetOverideZ, raftOffsetX, raftOffsetY, raftOffsetZ
 	ManipulatedString = ""
@@ -179,8 +181,10 @@ def SendGcodeLine(ll = ''):
 
 	beReadingLines = 1
 
-	while beReadingLines & cancellCurentPrint == 0:
+	while beReadingLines:
+		print("waiting for that line back")
 		grbl_out = str(s.readline(),"ascii") # Wait for grbl response with carriage return
+		print("got that line back")
 		print(' : ' + grbl_out.strip())
 		s.flushInput()
 		beReadingLines = 0
@@ -191,14 +195,7 @@ def SendGcodeLine(ll = ''):
 def PrintFile(gcodeFileName = 'test.g'):
 	global s, cancellCurentPrint, currentPrintModeIsRafting, raftOffsetX, raftOffsetY, raftOffsetZ, currentPrintLineNumber, currentPrintTotalLineNumber, printerServer, printerName, PrintNumber, printerServer
 	raftOffsetY = 0
-
-
-	s = serial.Serial(AutoDropSerialPort,AutoDropSerialPortSpeed)
-	# Wake up grbl
-	s.write(('\r\n\r\n').encode("ascii"))
-	time.sleep(2)   # Wait for grbl to initialize
-	s.flushInput()  # Flush startup text in serial input
-	s.write(('\r\n\r\n').encode("ascii"))
+	
 
 	currentPrintTotalLineNumber = sum(1 for line in open(gcodeFileName))
 
@@ -251,7 +248,6 @@ def PrintFile(gcodeFileName = 'test.g'):
 	
 	# Close file and serial port
 	f.close()
-	s.close()
 	CurrentlyPrintingRightNow = 0
 
 def urlretrieveWithFail(OptionA = "",OptionB = ""):
@@ -301,7 +297,16 @@ def StatusUpdateLoopWhilePrinting():
 
 
 def MainPrinterLoop():
-	global AutoDropSerialPort,AutoDropSerialPortSpeed, printerServer, printerName, SliceOnPrinter, PrintNumber, cancellCurentPrint
+	global s, AutoDropSerialPort,AutoDropSerialPortSpeed, printerServer, printerName, SliceOnPrinter, PrintNumber, cancellCurentPrint
+
+
+	s = serial.Serial(AutoDropSerialPort,AutoDropSerialPortSpeed)
+	# Wake up grbl
+	s.write(('\r\n\r\n').encode("ascii"))
+	time.sleep(2)   # Wait for grbl to initialize
+	s.flushInput()  # Flush startup text in serial input
+	s.write(('\r\n\r\n').encode("ascii"))
+
 	while 1: #loop for ever
 		cancellCurentPrint = 0
 		URLtoDownload = printerServer + "?name=" + printerName +  "&NoGcode=" + SliceOnPrinter
@@ -347,7 +352,6 @@ while 1:
 	if GPIO.input(buttonsStopPin) == 0:
 		cancellCurentPrint = 1
 		print("cancelling")
-
 
 
 
