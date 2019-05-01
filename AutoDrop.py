@@ -5,8 +5,18 @@ ServerTestMode="off"
 import _thread
 import time
 from urllib.request import urlretrieve
+
+from requests.utils import requote_uri
+
+import urllib.parse
+
+import requests
+
 from flask import Flask, render_template, request
 import subprocess
+import base64
+import json
+
 
 
 
@@ -71,6 +81,14 @@ CuraSlicerPathAndCommand = "CuraEngine -v -c cura.ini -s posx=0 -s posy=0 {optio
 def liveImageFile():
 	subprocess.call('fswebcam -S 20 ./static/junk.png', shell=True)
 	return app.send_static_file('junk.png')
+
+
+
+
+
+def image_to_data_url(img_file):
+    return "data:image/png;base64," + base64.encodestring(open(img_file,"rb").read()).decode('utf8')
+
 
 
 @app.route('/',methods = ['GET', 'POST'])
@@ -176,24 +194,27 @@ def offsetGcodeDuringRaft(orgNonManipulatedString = ""):
 
 def SendGcodeLine(ll = ''):
 	print("Sending :" + ll)
-	s.flushInput()
-	s.write(ll.encode("ascii") + b'\n')
-
-	beReadingLines = 1
-
-	while beReadingLines:
-		print("Sent : " + ll + " | waiting for response")
-		grbl_out = str(s.readline(),"ascii") # Wait for grbl response with carriage return
-		#print("got that line back")
-		print('response : ' + grbl_out.strip())
+	if ServerTestMode != "on":
 		s.flushInput()
-		beReadingLines = 0
-		if "T:" in grbl_out:
-			beReadingLines = 1
-		if "echo:busy" in  grbl_out:
-			beReadingLines = 1
-		if "ok " in grbl_out:
+		s.write(ll.encode("ascii") + b'\n')
+
+		beReadingLines = 1
+
+		while beReadingLines:
+			print("Sent : " + ll + " | waiting for response")
+			grbl_out = str(s.readline(),"ascii") # Wait for grbl response with carriage return
+			#print("got that line back")
+			print('response : ' + grbl_out.strip())
+			s.flushInput()
 			beReadingLines = 0
+			if "T:" in grbl_out:
+				beReadingLines = 1
+			if "echo:busy" in  grbl_out:
+				beReadingLines = 1
+			if "ok " in grbl_out:
+				beReadingLines = 0
+	else:
+		time.sleep(.1)
 
 def PrintFile(gcodeFileName = 'test.g'):
 	global s, cancellCurentPrint, currentPrintModeIsRafting, raftOffsetX, raftOffsetY, raftOffsetZ, currentPrintLineNumber, currentPrintTotalLineNumber, printerServer, printerName, PrintNumber, printerServer
@@ -263,10 +284,7 @@ def urlretrieveWithFail(OptionA = "",OptionB = ""):
 		print("Failed Retrieve File")
 
 
-if ServerTestMode == "on":
-	while 1:
-		time.sleep(10)
-		print("fake looping for printer")
+
 
 
 @app.route('/manualcontroll',methods = ['GET', 'POST'])
@@ -281,15 +299,31 @@ def StatusUpdateLoopWhilePrinting():
 	global currentPrintLineNumber, currentPrintTotalLineNumber, printerServer, printerName, cancellCurentPrint
 	while 1:
 		if currentPrintTotalLineNumber > 10:
-			time.sleep(30)
+			time.sleep(10)
+			subprocess.call('fswebcam -S 20 ./static/junk.png', shell=True)
 			howFarAlongInThePrintAreWe = (currentPrintLineNumber / currentPrintTotalLineNumber) * 100
-			URLtoDownload = printerServer + "?jobID=" + PrintNumber + "&stat=update&jobStatus="  + str(howFarAlongInThePrintAreWe)
-			print(URLtoDownload)
-			urlretrieveWithFail(URLtoDownload, "statupdate.txt")
-			print(URLtoDownload)
-			ffff = open("statupdate.txt",'r');
-			serverMsg = str(ffff.readline())
-			ffff.close()
+			#image_to_data_url("./static/junk.png")
+
+			#payload = {'stat':'update', 'jobStatus':str(howFarAlongInThePrintAreWe), 'img': image_to_data_url("./static/junk.png") }
+			#URLPayloadResult = urlencode(payload, quote_via=quote_plus)
+
+
+			#URLtoDownload = printerServer + "?jobID=" + PrintNumber + "&stat=update&jobStatus="  + str(howFarAlongInThePrintAreWe) + "&img=" + urllib.parse.quote(base64.b64encode(open('./static/junk.png',"rb").read()).decode('ascii'))
+			#URLtoDownload = printerServer + "?" + URLPayloadResult 
+
+
+			data = { "jobID":PrintNumber, "stat":"update", "jobStatus":str(howFarAlongInThePrintAreWe), "img":image_to_data_url('./static/junk.png')}
+			headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+			#myfiles={'img': open('./static/junk.png','rb')}
+
+			response = requests.post(printerServer , json=data,)
+
+
+
+
+			print(response)
+
+			serverMsg = ""
 
 			print(str(serverMsg))
 			if serverMsg.find("CANCELED") > -1:
@@ -302,13 +336,13 @@ def StatusUpdateLoopWhilePrinting():
 def MainPrinterLoop():
 	global s, AutoDropSerialPort,AutoDropSerialPortSpeed, printerServer, printerName, SliceOnPrinter, PrintNumber, cancellCurentPrint
 
-
-	s = serial.Serial(AutoDropSerialPort,AutoDropSerialPortSpeed)
-	# Wake up grbl
-	s.write(('\r\n\r\n').encode("ascii"))
-	time.sleep(2)   # Wait for grbl to initialize
-	s.flushInput()  # Flush startup text in serial input
-	s.write(('\r\n\r\n').encode("ascii"))
+	if ServerTestMode != "on":
+		s = serial.Serial(AutoDropSerialPort,AutoDropSerialPortSpeed)
+		# Wake up grbl
+		s.write(('\r\n\r\n').encode("ascii"))
+		time.sleep(2)   # Wait for grbl to initialize
+		s.flushInput()  # Flush startup text in serial input
+		s.write(('\r\n\r\n').encode("ascii"))
 
 	while 1: #loop for ever
 		cancellCurentPrint = 0
@@ -352,9 +386,10 @@ _thread.start_new_thread(StatusUpdateLoopWhilePrinting,())
 while 1:
 	time.sleep(.01)
 	#print(GPIO.input(buttonsStopPin))
-	if GPIO.input(buttonsStopPin) == 0:
-		cancellCurentPrint = 1
-		print("cancelling")
+	if ServerTestMode != "on":
+		if GPIO.input(buttonsStopPin) == 0:
+			cancellCurentPrint = 1
+			print("cancelling")
 
 
 
