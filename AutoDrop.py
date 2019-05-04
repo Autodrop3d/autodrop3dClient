@@ -58,6 +58,8 @@ PrintNumber = ""
 currentPrintModeIsRafting = 0
 cancellCurentPrint = 0
 
+finalPic = "False"
+
 
 f = open("settings.txt",'r');
 AutoDropSerialPort = str(f.readline()).strip()
@@ -214,10 +216,10 @@ def SendGcodeLine(ll = ''):
 			if "ok " in grbl_out:
 				beReadingLines = 0
 	else:
-		time.sleep(.1)
+		time.sleep(.01)
 
 def PrintFile(gcodeFileName = 'test.g'):
-	global s, cancellCurentPrint, currentPrintModeIsRafting, raftOffsetX, raftOffsetY, raftOffsetZ, currentPrintLineNumber, currentPrintTotalLineNumber, printerServer, printerName, PrintNumber, printerServer
+	global s, cancellCurentPrint, currentPrintModeIsRafting, raftOffsetX, raftOffsetY, raftOffsetZ, currentPrintLineNumber, currentPrintTotalLineNumber, printerServer, printerName, PrintNumber, printerServer, noPicNow
 	raftOffsetY = 0
 	
 
@@ -256,6 +258,12 @@ def PrintFile(gcodeFileName = 'test.g'):
 					urlretrieveWithFail(URLtoDownload, "notifyComplete.txt")
 					while GPIO.input(buttonsRestartPin) == 1:
 						print("Hit button to continue")
+
+				elif str(l.split(b'@',1)[1],"ascii") == "finalPic":
+					finalPic = "True"
+
+
+
 				else:
 					try:
 						exec(open("custom.py").read()+ "\n\n" + str(l.split(b'@',1)[1],"ascii"))
@@ -299,42 +307,47 @@ def StatusUpdateLoopWhilePrinting():
 	global currentPrintLineNumber, currentPrintTotalLineNumber, printerServer, printerName, cancellCurentPrint
 	while 1:
 		if currentPrintTotalLineNumber > 10:
-			time.sleep(10)
-			subprocess.call('fswebcam -S 20 ./static/junk.png', shell=True)
-			howFarAlongInThePrintAreWe = (currentPrintLineNumber / currentPrintTotalLineNumber) * 100
-			#image_to_data_url("./static/junk.png")
+			time.sleep(6)
 
-			#payload = {'stat':'update', 'jobStatus':str(howFarAlongInThePrintAreWe), 'img': image_to_data_url("./static/junk.png") }
-			#URLPayloadResult = urlencode(payload, quote_via=quote_plus)
+			try:
+				if finalPic == "False":
+					subprocess.call('fswebcam -S 20 ./static/junk.png', shell=True)
+					time.sleep(10)
+
+				howFarAlongInThePrintAreWe = (currentPrintLineNumber / currentPrintTotalLineNumber) * 100
+
+				data = { "jobID":PrintNumber, "stat":"update", "jobStatus":str(howFarAlongInThePrintAreWe), "img":image_to_data_url('./static/junk.png')}
+				headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
 
 
-			#URLtoDownload = printerServer + "?jobID=" + PrintNumber + "&stat=update&jobStatus="  + str(howFarAlongInThePrintAreWe) + "&img=" + urllib.parse.quote(base64.b64encode(open('./static/junk.png',"rb").read()).decode('ascii'))
-			#URLtoDownload = printerServer + "?" + URLPayloadResult 
-
-
-			data = { "jobID":PrintNumber, "stat":"update", "jobStatus":str(howFarAlongInThePrintAreWe), "img":image_to_data_url('./static/junk.png')}
-			headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
-			#myfiles={'img': open('./static/junk.png','rb')}
-
-			response = requests.post(printerServer , json=data,)
+				response = requests.post(printerServer , json=data,)
 
 
 
 
-			print(response)
+				print(response)
 
-			serverMsg = ""
+				serverMsg = response
 
-			print(str(serverMsg))
-			if serverMsg.find("CANCELED") > -1:
-				print("Job should be canceled now")
-				cancellCurentPrint = 1
+				print(str(serverMsg))
+				if serverMsg.find("CANCELED") > -1:
+					print("Job should be canceled now")
+					cancellCurentPrint = 1
+
+			except:
+				print("Update status failed.")
+
+
+
+
+
+
 
 
 
 
 def MainPrinterLoop():
-	global s, AutoDropSerialPort,AutoDropSerialPortSpeed, printerServer, printerName, SliceOnPrinter, PrintNumber, cancellCurentPrint
+	global s, AutoDropSerialPort,AutoDropSerialPortSpeed, printerServer, printerName, SliceOnPrinter, PrintNumber, cancellCurentPrint, finalPic
 
 	if ServerTestMode != "on":
 		s = serial.Serial(AutoDropSerialPort,AutoDropSerialPortSpeed)
@@ -362,6 +375,7 @@ def MainPrinterLoop():
 
 
 			print("PrintNumber=" + PrintNumber)
+			finalPic = "False"
 
 			f.close()
 
@@ -390,8 +404,3 @@ while 1:
 		if GPIO.input(buttonsStopPin) == 0:
 			cancellCurentPrint = 1
 			print("cancelling")
-
-
-
-
-
