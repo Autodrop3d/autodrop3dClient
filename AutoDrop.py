@@ -61,16 +61,34 @@ cancellCurentPrint = 0
 finalPic = "False"
 
 
-f = open("settings.txt",'r');
-AutoDropSerialPort = str(f.readline()).strip()
-AutoDropSerialPortSpeed = str(f.readline()).strip()
-printerServer = str(f.readline()).strip()
-printerName = str(f.readline()).strip()
-SliceOnPrinter = str(f.readline()).strip()
-printerPositionOffsetOverideX  = str(f.readline()).strip()
-printerPositionOffsetOverideY  = str(f.readline()).strip()
-printerPositionOffsetOverideZ  = str(f.readline()).strip()
-f.close()
+AutoDropSerialPort = ""
+AutoDropSerialPortSpeed = ""
+printerServer = ""
+printerName = ""
+SliceOnPrinter = ""
+printerPositionOffsetOverideX  = ""
+printerPositionOffsetOverideY  = ""
+printerPositionOffsetOverideZ  = ""
+
+
+
+
+try:
+	f = open("settings.txt",'r');
+	AutoDropSerialPort = str(f.readline()).strip()
+	AutoDropSerialPortSpeed = str(f.readline()).strip()
+	printerServer = str(f.readline()).strip()
+	printerName = str(f.readline()).strip()
+	SliceOnPrinter = str(f.readline()).strip()
+	printerPositionOffsetOverideX  = str(f.readline()).strip()
+	printerPositionOffsetOverideY  = str(f.readline()).strip()
+	printerPositionOffsetOverideZ  = str(f.readline()).strip()
+	f.close()
+except:
+	print("No configuration file supplied. Configure from web browser")
+
+
+
 
 
 
@@ -221,7 +239,7 @@ def SendGcodeLine(ll = ''):
 def PrintFile(gcodeFileName = 'test.g'):
 	global s, cancellCurentPrint, currentPrintModeIsRafting, raftOffsetX, raftOffsetY, raftOffsetZ, currentPrintLineNumber, currentPrintTotalLineNumber, printerServer, printerName, PrintNumber, printerServer, noPicNow
 	raftOffsetY = 0
-	
+
 
 	currentPrintTotalLineNumber = sum(1 for line in open(gcodeFileName))
 
@@ -277,7 +295,7 @@ def PrintFile(gcodeFileName = 'test.g'):
 				SendGcodeLine(ll)
 
 
-	
+
 	# Close file and serial port
 	f.close()
 	CurrentlyPrintingRightNow = 0
