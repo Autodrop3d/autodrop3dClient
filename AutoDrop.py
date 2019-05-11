@@ -81,7 +81,7 @@ CuraSlicerPathAndCommand = "CuraEngine -v -c cura.ini -s posx=0 -s posy=0 {optio
 
 @app.route('/image.png')
 def liveImageFile():
-	subprocess.call('fswebcam -S 20 ./static/junk.png', shell=True)
+	subprocess.call('raspistill -o ./static/junk.png', shell=True)
 	return app.send_static_file('junk.png')
 
 
@@ -311,7 +311,7 @@ def StatusUpdateLoopWhilePrinting():
 
 			try:
 				if finalPic == "False":
-					subprocess.call('fswebcam -S 20 ./static/junk.png', shell=True)
+					subprocess.call('raspistill -o ./static/junk.png', shell=True)
 					time.sleep(10)
 
 				howFarAlongInThePrintAreWe = (currentPrintLineNumber / currentPrintTotalLineNumber) * 100
