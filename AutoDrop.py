@@ -316,7 +316,7 @@ def urlretrieveWithFail(OptionA = "",OptionB = ""):
 @app.route('/manualcontroll',methods = ['GET', 'POST'])
 def manualcontroll():
 	global s, printerPositionOffsetOverideX , printerPositionOffsetOverideY, printerPositionOffsetOverideZ
-	s = serial.Serial(AutoDropSerialPort,AutoDropSerialPortSpeed)
+	s = serial.Serial(AutoDropSerialPort,int(AutoDropSerialPortSpeed))
 	piceOfGcodeToSend = request.args['gcode']
 	SendGcodeLine(offsetGcodeDuringRaft(piceOfGcodeToSend))
 	return piceOfGcodeToSend
