@@ -1,5 +1,5 @@
 #! /usr/bin/env python3
-ServerTestMode="off"
+ServerTestMode="on"
 
 
 import _thread
@@ -65,11 +65,25 @@ AutoDropSerialPort = ""
 AutoDropSerialPortSpeed = ""
 printerServer = ""
 printerName = ""
-SliceOnPrinter = ""
+clientAcessKey = "dkdkdkdkd"
 printerPositionOffsetOverideX  = ""
 printerPositionOffsetOverideY  = ""
 printerPositionOffsetOverideZ  = ""
+printerServer = ""
+wifiAPname = ""
+wifiAPpass = ""
 
+if (ServerTestMode == "on"):
+	printerServer = "https://autodrop1.sparkhosted.site/api/jobsQueue/printerRequestJob"
+else:
+	printerServer = "https://go.autodrop3d.com/api/jobsQueue/printerRequestJob"
+    
+    
+
+
+def printServerBaseURL():
+	global printerServer, printerName
+	return printerServer
 
 
 
@@ -77,9 +91,8 @@ try:
 	f = open("settings.txt",'r');
 	AutoDropSerialPort = str(f.readline()).strip()
 	AutoDropSerialPortSpeed = str(f.readline()).strip()
-	printerServer = str(f.readline()).strip()
 	printerName = str(f.readline()).strip()
-	SliceOnPrinter = str(f.readline()).strip()
+	clientAcessKey = str(f.readline()).strip()
 	printerPositionOffsetOverideX  = str(f.readline()).strip()
 	printerPositionOffsetOverideY  = str(f.readline()).strip()
 	printerPositionOffsetOverideZ  = str(f.readline()).strip()
@@ -99,6 +112,7 @@ CuraSlicerPathAndCommand = "CuraEngine -v -c cura.ini -s posx=0 -s posy=0 {optio
 
 @app.route('/image.png')
 def liveImageFile():
+	subprocess.call('fswebcam -S 20 ./static/junk.png', shell=True)
 	subprocess.call('raspistill -w 200 -h 150 -o ./static/junk.png', shell=True)
 	return app.send_static_file('junk.png')
 
@@ -113,7 +127,7 @@ def image_to_data_url(img_file):
 
 @app.route('/',methods = ['GET', 'POST'])
 def index():
-	global AutoDropSerialPort,AutoDropSerialPortSpeed, printerServer, printerName, SliceOnPrinter, printerPositionOffsetOverideX, printerPositionOffsetOverideY, printerPositionOffsetOverideZ
+	global AutoDropSerialPort,AutoDropSerialPortSpeed, printerServer, printerName, clientAcessKey, printerPositionOffsetOverideX, printerPositionOffsetOverideY, printerPositionOffsetOverideZ
 
 	if request.method == 'POST':
 
@@ -121,11 +135,9 @@ def index():
 
 		AutoDropSerialPortSpeed =  request.form['AutoDropSerialPortSpeed']
 
-		printerServer =  request.form['printerServer']
-
 		printerName = request.form['printerName']
 
-		SliceOnPrinter = request.form['SliceOnPrinter']
+		clientAcessKey = request.form['clientAcessKey']
 
 
 		printerPositionOffsetOverideX = request.form['printerPositionOffsetOverideX']
@@ -139,13 +151,18 @@ def index():
 		f = open("settings.txt",'w');
 		f.write( AutoDropSerialPort + "\n")
 		f.write( AutoDropSerialPortSpeed + "\n")
-		f.write( printerServer + "\n")
+		#f.write( printerServer + "\n")
 		f.write( printerName + "\n")
-		f.write( SliceOnPrinter + "\n")
+		f.write( clientAcessKey + "\n")
 		f.write( printerPositionOffsetOverideX + "\n")
 		f.write( printerPositionOffsetOverideY + "\n")
 		f.write( printerPositionOffsetOverideZ + "\n")
 		f.close()
+		
+		wifiAPname = request.form['wifiAPname']
+		wifiAPpass = request.form['wifiAPpass']
+		if wifiAPname != "":
+			print("wifi name was specified")
 
 
 	try:
@@ -153,7 +170,7 @@ def index():
 	except:
 		PLUGINFUNCTIONS = ""
 
-	return render_template('index.html', AutoDropSerialPort = AutoDropSerialPort , AutoDropSerialPortSpeed = AutoDropSerialPortSpeed, printerServer = printerServer , printerName = printerName,  PLUGINFUNCTIONS = PLUGINFUNCTIONS, SliceOnPrinter = SliceOnPrinter, printerPositionOffsetOverideX = printerPositionOffsetOverideX, printerPositionOffsetOverideY = printerPositionOffsetOverideY, printerPositionOffsetOverideZ = printerPositionOffsetOverideZ)
+	return render_template('index.html', AutoDropSerialPort = AutoDropSerialPort , AutoDropSerialPortSpeed = AutoDropSerialPortSpeed, printerName = printerName,  PLUGINFUNCTIONS = PLUGINFUNCTIONS, clientAcessKey = clientAcessKey, printerPositionOffsetOverideX = printerPositionOffsetOverideX, printerPositionOffsetOverideY = printerPositionOffsetOverideY, printerPositionOffsetOverideZ = printerPositionOffsetOverideZ)
 
 
 
@@ -329,6 +346,7 @@ def StatusUpdateLoopWhilePrinting():
 
 			try:
 				if finalPic == "False":
+					subprocess.call('fswebcam -S 20 ./static/junk.png', shell=True)
 					subprocess.call('raspistill  -w 200 -h 150 -o ./static/junk.png', shell=True)
 					time.sleep(10)
 
@@ -365,7 +383,7 @@ def StatusUpdateLoopWhilePrinting():
 
 
 def MainPrinterLoop():
-	global s, AutoDropSerialPort,AutoDropSerialPortSpeed, printerServer, printerName, SliceOnPrinter, PrintNumber, cancellCurentPrint, finalPic
+	global s, AutoDropSerialPort,AutoDropSerialPortSpeed, printerServer, printerName, clientAcessKey, PrintNumber, cancellCurentPrint, finalPic
 
 	if ServerTestMode != "on":
 		s = serial.Serial(AutoDropSerialPort,AutoDropSerialPortSpeed)
@@ -377,7 +395,7 @@ def MainPrinterLoop():
 
 	while 1: #loop for ever
 		cancellCurentPrint = 0
-		URLtoDownload = printerServer + "?name=" + printerName +  "&NoGcode=" + SliceOnPrinter
+		URLtoDownload = printerServer + "?name=" + printerName +  "&NoGcode=" + clientAcessKey
 		urlretrieveWithFail(URLtoDownload, "download.g")
 		print(URLtoDownload)
 		f = open("download.g",'r');
