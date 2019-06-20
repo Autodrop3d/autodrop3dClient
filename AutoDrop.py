@@ -17,6 +17,18 @@ import subprocess
 import base64
 import json
 
+import serial.tools.list_ports
+
+
+
+print("looking for serial ports")
+ports = list(serial.tools.list_ports.comports())
+for p in ports:
+	print(p[0])
+print("done looking for serial ports")
+
+
+
 
 
 
