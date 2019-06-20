@@ -85,6 +85,11 @@ printerServer = ""
 wifiAPname = ""
 wifiAPpass = ""
 
+wifiAPmode = False
+
+
+
+
 if (ServerTestMode == "on"):
 	printerServer = "https://autodrop1.sparkhosted.site/api/jobsQueue/printerRequestJob"
 else:
@@ -452,3 +457,16 @@ while 1:
 		if GPIO.input(buttonsStopPin) == 0:
 			cancellCurentPrint = 1
 			print("cancelling")
+		if GPIO.input(buttonsStopPin) == 0:
+			time.sleep(2)
+			wifiAPmode = not wifiAPmode 
+			if wifiAPmode == True:
+				subprocess.call('./switchToAP.sh', shell=True)
+			else:
+				subprocess.call('./switchToWlan.sh', shell=True)
+
+
+
+
+
+
