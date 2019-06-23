@@ -1,5 +1,5 @@
 #! /usr/bin/env python3
-ServerTestMode="off"
+ServerTestMode="on"
 
 
 import _thread
@@ -17,15 +17,17 @@ import subprocess
 import base64
 import json
 
-import serial.tools.list_ports
+#import serial.tools.list_ports
 
 
 
-print("looking for serial ports")
-ports = list(serial.tools.list_ports.comports())
-for p in ports:
-	print(p[0])
-print("done looking for serial ports")
+#print("looking for serial ports")
+#ports = list(serial.tools.list_ports.comports())
+#print(ports)
+
+#for p in ports:
+#	print(p)
+#print("done looking for serial ports")
 
 
 
@@ -78,7 +80,7 @@ AutoDropSerialPort = ""
 AutoDropSerialPortSpeed = ""
 printerServer = ""
 printerName = ""
-clientAcessKey = "dkdkdkdkd"
+clientAcessKey = ""
 printerPositionOffsetOverideX  = ""
 printerPositionOffsetOverideY  = ""
 printerPositionOffsetOverideZ  = ""
@@ -147,6 +149,17 @@ def image_to_data_url(img_file):
 def index():
 	global AutoDropSerialPort,AutoDropSerialPortSpeed, printerServer, printerName, clientAcessKey, printerPositionOffsetOverideX, printerPositionOffsetOverideY, printerPositionOffsetOverideZ
 
+	listOfSerialDevices = ""
+
+#	ports = list(serial.tools.list_ports.comports())
+#	for p in ports:
+#		print(p[0])
+#		listOfSerialDevices = listOfSerialDevices + ", " + p[0]
+
+	listOfSerialDevices = subprocess.check_output('ls /dev/tty*', shell=True).decode("utf-8") 
+
+
+
 	if request.method == 'POST':
 
 		AutoDropSerialPort = request.form['AutoDropSerialPort']
@@ -182,7 +195,7 @@ def index():
 		if wifiAPname != "":
 			print("wifi name was specified")
 			subprocess.call('sudo ./setup_wlan_and_AP_modes.sh -s ' + wifiAPname + ' -p ' + wifiAPpass + ' -a autodrop3dConfig -r autodrop3d', shell=True)
-			subprocess.call('sudo ./switchToWlan.sh', shell=True)
+			#subprocess.call('sudo ./switchToWlan.sh', shell=True)
 
 
 	try:
@@ -190,7 +203,7 @@ def index():
 	except:
 		PLUGINFUNCTIONS = ""
 
-	return render_template('index.html', AutoDropSerialPort = AutoDropSerialPort , AutoDropSerialPortSpeed = AutoDropSerialPortSpeed, printerName = printerName,  PLUGINFUNCTIONS = PLUGINFUNCTIONS, clientAcessKey = clientAcessKey, printerPositionOffsetOverideX = printerPositionOffsetOverideX, printerPositionOffsetOverideY = printerPositionOffsetOverideY, printerPositionOffsetOverideZ = printerPositionOffsetOverideZ)
+	return render_template('index.html', listOfSerialDevices = listOfSerialDevices, AutoDropSerialPort = AutoDropSerialPort , AutoDropSerialPortSpeed = AutoDropSerialPortSpeed, printerName = printerName,  PLUGINFUNCTIONS = PLUGINFUNCTIONS, clientAcessKey = clientAcessKey, printerPositionOffsetOverideX = printerPositionOffsetOverideX, printerPositionOffsetOverideY = printerPositionOffsetOverideY, printerPositionOffsetOverideZ = printerPositionOffsetOverideZ)
 
 
 
@@ -359,7 +372,7 @@ def manualcontroll():
 	return piceOfGcodeToSend
 
 def StatusUpdateLoopWhilePrinting():
-	global currentPrintLineNumber, currentPrintTotalLineNumber, printerServer, printerName, cancellCurentPrint
+	global currentPrintLineNumber, currentPrintTotalLineNumber, printerServer, printerName, cancellCurentPrint, clientAcessKey
 	while 1:
 		if currentPrintTotalLineNumber > 10:
 			time.sleep(6)
@@ -372,7 +385,7 @@ def StatusUpdateLoopWhilePrinting():
 
 				howFarAlongInThePrintAreWe = (currentPrintLineNumber / currentPrintTotalLineNumber) * 100
 
-				data = { "jobID":PrintNumber, "stat":"update", "jobStatus":str(howFarAlongInThePrintAreWe), "img":image_to_data_url('./static/junk.png')}
+				data = { "jobID":PrintNumber, "name":printerName, "key":clientAcessKey, "stat":"update", "jobStatus":str(howFarAlongInThePrintAreWe), "img":image_to_data_url('./static/junk.png')}
 				headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
 
 
@@ -415,7 +428,7 @@ def MainPrinterLoop():
 
 	while 1: #loop for ever
 		cancellCurentPrint = 0
-		URLtoDownload = printerServer + "?name=" + printerName +  "&NoGcode=" + clientAcessKey
+		URLtoDownload = printerServer + "?name=" + printerName +  "&key=" + clientAcessKey
 		urlretrieveWithFail(URLtoDownload, "download.g")
 		print(URLtoDownload)
 		f = open("download.g",'r');
@@ -440,11 +453,11 @@ def MainPrinterLoop():
 			#PrintFile("end.gcode")
 
 			if cancellCurentPrint == 0:
-				URLtoDownload = printerServer + "?jobID=" + PrintNumber + "&stat=Done"
+				URLtoDownload = printerServer + "?name=" + printerName + "?jobID=" + PrintNumber +  "&key=" + clientAcessKey + "&stat=Done"
 				print(URLtoDownload)
 				urlretrieveWithFail(URLtoDownload, "download.g")
 
-				URLtoDownload = printerServer + "?jobID=" + PrintNumber + "&stat=Done"
+				URLtoDownload = printerServer + "?name=" + printerName + "?jobID=" + PrintNumber +  "&key=" + clientAcessKey + "&stat=Done"
 				print(URLtoDownload)
 				urlretrieveWithFail(URLtoDownload, "download.g")
 
