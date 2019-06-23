@@ -1,5 +1,5 @@
 #! /usr/bin/env python3
-ServerTestMode="on"
+ServerTestMode="off"
 
 
 import _thread
@@ -34,6 +34,7 @@ print("done looking for serial ports")
 
 buttonsStopPin = 16
 buttonsRestartPin = 18
+buttonsWifiAPpin = 22
 
 if ServerTestMode != "on":
 	try:
@@ -43,7 +44,7 @@ if ServerTestMode != "on":
 		GPIO.setmode(GPIO.BOARD)
 		GPIO.setup(buttonsStopPin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 		GPIO.setup(buttonsRestartPin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-
+		GPIO.setup(buttonsWifiAPpin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 	except:
 		print("failed to start ras pi stuff")
 
@@ -180,6 +181,8 @@ def index():
 		wifiAPpass = request.form['wifiAPpass']
 		if wifiAPname != "":
 			print("wifi name was specified")
+			subprocess.call('sudo ./setup_wlan_and_AP_modes.sh -s ' + wifiAPname + ' -p ' + wifiAPpass + ' -a autodrop3dConfig -r autodrop3d', shell=True)
+			subprocess.call('sudo ./switchToWlan.sh', shell=True)
 
 
 	try:
@@ -457,13 +460,15 @@ while 1:
 		if GPIO.input(buttonsStopPin) == 0:
 			cancellCurentPrint = 1
 			print("cancelling")
-		if GPIO.input(buttonsStopPin) == 0:
+		if GPIO.input(buttonsWifiAPpin) == 0:
+			
+			print("toggling ap/station mode")
 			time.sleep(2)
 			wifiAPmode = not wifiAPmode 
 			if wifiAPmode == True:
-				subprocess.call('./switchToAP.sh', shell=True)
+				subprocess.call('sudo ./switchToAP.sh', shell=True)
 			else:
-				subprocess.call('./switchToWlan.sh', shell=True)
+				subprocess.call('sudo ./switchToWlan.sh', shell=True)
 
 
 
