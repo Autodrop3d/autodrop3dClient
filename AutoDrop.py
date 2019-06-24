@@ -242,7 +242,9 @@ def EjectStuff():
 def offsetGcodeDuringRaft(orgNonManipulatedString = ""):
 	global printerPositionOffsetOverideX, printerPositionOffsetOverideY, printerPositionOffsetOverideZ, raftOffsetX, raftOffsetY, raftOffsetZ
 	ManipulatedString = ""
+	print(orgNonManipulatedString)
 	for member in orgNonManipulatedString.split( ):
+		print(member[0], member)
 		if (member[0] == "X"):
 			member = member.replace("X","")
 			member = "X" + str(round(float(member) + float(printerPositionOffsetOverideX) + raftOffsetX, 6) )
@@ -251,6 +253,9 @@ def offsetGcodeDuringRaft(orgNonManipulatedString = ""):
 			member = "Y" + str(round(float(member) + float(printerPositionOffsetOverideY) + raftOffsetY, 6) )
 		if (member[0] == "Z"):
 			member = member.replace("Z","")
+			print(float(member))
+			print("Member with z removed", member)
+			print("mebers value"+member+"endofmember value")
 			member = "Z" + str(round(float(member) + float(printerPositionOffsetOverideZ) + raftOffsetZ, 6) )
 
 		ManipulatedString = ManipulatedString + " " + member + " "
@@ -284,7 +289,7 @@ def SendGcodeLine(ll = ''):
 			if "ok " in grbl_out:
 				beReadingLines = 0
 	else:
-		time.sleep(.01)
+		time.sleep(.001)
 
 def PrintFile(gcodeFileName = 'test.g'):
 	global s, cancellCurentPrint, currentPrintModeIsRafting, raftOffsetX, raftOffsetY, raftOffsetZ, currentPrintLineNumber, currentPrintTotalLineNumber, printerServer, printerName, PrintNumber, printerServer, noPicNow
@@ -453,11 +458,11 @@ def MainPrinterLoop():
 			#PrintFile("end.gcode")
 
 			if cancellCurentPrint == 0:
-				URLtoDownload = printerServer + "?name=" + printerName + "?jobID=" + PrintNumber +  "&key=" + clientAcessKey + "&stat=Done"
+				URLtoDownload = printerServer + "?name=" + printerName + "&jobID=" + PrintNumber +  "&key=" + clientAcessKey + "&stat=Done"
 				print(URLtoDownload)
 				urlretrieveWithFail(URLtoDownload, "download.g")
 
-				URLtoDownload = printerServer + "?name=" + printerName + "?jobID=" + PrintNumber +  "&key=" + clientAcessKey + "&stat=Done"
+				URLtoDownload = printerServer + "?name=" + printerName + "&jobID=" + PrintNumber +  "&key=" + clientAcessKey + "&stat=Done"
 				print(URLtoDownload)
 				urlretrieveWithFail(URLtoDownload, "download.g")
 
@@ -482,9 +487,5 @@ while 1:
 				subprocess.call('sudo ./switchToAP.sh', shell=True)
 			else:
 				subprocess.call('sudo ./switchToWlan.sh', shell=True)
-
-
-
-
-
-
+				
+				
