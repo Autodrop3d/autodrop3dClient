@@ -1,5 +1,5 @@
 #! /usr/bin/env python3
-ServerTestMode="on"
+ServerTestMode="off"
 
 
 import _thread
@@ -130,10 +130,18 @@ except:
 
 CuraSlicerPathAndCommand = "CuraEngine -v -c cura.ini -s posx=0 -s posy=0 {options} -o {OutFile}.gcode {inFile}.stl    2>&1";
 
+
+
+def takeApicture():
+	subprocess.call('fswebcam -S 20 ./static/junk.png', shell=True)
+	subprocess.call('raspistill  -w 200 -h 150 -o ./static/junk.png', shell=True)
+	time.sleep(10)
+	
+
+
 @app.route('/image.png')
 def liveImageFile():
-	subprocess.call('fswebcam -S 20 ./static/junk.png', shell=True)
-	subprocess.call('raspistill -w 200 -h 150 -o ./static/junk.png', shell=True)
+	takeApicture()
 	return app.send_static_file('junk.png')
 
 
@@ -292,7 +300,7 @@ def SendGcodeLine(ll = ''):
 		time.sleep(.001)
 
 def PrintFile(gcodeFileName = 'test.g'):
-	global s, cancellCurentPrint, currentPrintModeIsRafting, raftOffsetX, raftOffsetY, raftOffsetZ, currentPrintLineNumber, currentPrintTotalLineNumber, printerServer, printerName, PrintNumber, printerServer, noPicNow
+	global s, cancellCurentPrint, currentPrintModeIsRafting, raftOffsetX, raftOffsetY, raftOffsetZ, currentPrintLineNumber, currentPrintTotalLineNumber, printerServer, printerName, PrintNumber, printerServer, noPicNow, finalPic
 	raftOffsetY = 0
 
 
@@ -301,6 +309,7 @@ def PrintFile(gcodeFileName = 'test.g'):
 	f = open(gcodeFileName,'r');
 	currentPrintLineNumber = 0
 	CurrentlyPrintingRightNow = 1
+	finalPic = "False"
 
 	# Stream g-code to grbl
 	for line in f:
@@ -334,6 +343,7 @@ def PrintFile(gcodeFileName = 'test.g'):
 
 				elif str(l.split(b'@',1)[1],"ascii") == "finalPic":
 					finalPic = "True"
+					takeApicture()
 
 
 
@@ -377,27 +387,24 @@ def manualcontroll():
 	return piceOfGcodeToSend
 
 def StatusUpdateLoopWhilePrinting():
-	global currentPrintLineNumber, currentPrintTotalLineNumber, printerServer, printerName, cancellCurentPrint, clientAcessKey
+	global currentPrintLineNumber, currentPrintTotalLineNumber, printerServer, printerName, cancellCurentPrint, clientAcessKey, finalPic
 	while 1:
 		if currentPrintTotalLineNumber > 10:
 			time.sleep(6)
 
 			try:
 				if finalPic == "False":
-					subprocess.call('fswebcam -S 20 ./static/junk.png', shell=True)
-					subprocess.call('raspistill  -w 200 -h 150 -o ./static/junk.png', shell=True)
-					time.sleep(10)
+					takeApicture()
+
+				else:
+					print("final picture taken")
 
 				howFarAlongInThePrintAreWe = (currentPrintLineNumber / currentPrintTotalLineNumber) * 100
 
 				data = { "jobID":PrintNumber, "name":printerName, "key":clientAcessKey, "stat":"update", "jobStatus":str(howFarAlongInThePrintAreWe), "img":image_to_data_url('./static/junk.png')}
 				headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
 
-
 				response = requests.post(printerServer , json=data,)
-
-
-
 
 				print(response)
 
@@ -487,5 +494,3 @@ while 1:
 				subprocess.call('sudo ./switchToAP.sh', shell=True)
 			else:
 				subprocess.call('sudo ./switchToWlan.sh', shell=True)
-				
-				
