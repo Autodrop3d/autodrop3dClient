@@ -17,38 +17,52 @@ import subprocess
 import base64
 import json
 
-#import serial.tools.list_ports
+class pinConfig:
+		FilamentSensor1 = 22
+		FilamentSensor2 = 37
+		Config = 32
+		Cancel = 12
+		Next = 33
+		FilamentLoad1 = 36
+		FilamentLoad2 = 11
 
+		EjectorMotor = 16
 
+		LEDred = 7
+		LEDyellow = 29
+		LEDgreen = 18
+		
+		LEDstateRed = "off"
+		LEDstateYellow = "off"
+		LEDstateGreen = "off"
+		
 
-#print("looking for serial ports")
-#ports = list(serial.tools.list_ports.comports())
-#print(ports)
-
-#for p in ports:
-#	print(p)
-#print("done looking for serial ports")
-
-
-
-
-
-
-buttonsStopPin = 16
-buttonsRestartPin = 18
-buttonsWifiAPpin = 22
+		
 
 if ServerTestMode != "on":
-	try:
-		import RPi.GPIO as GPIO
-		import serial
-		GPIO.setwarnings(False)
-		GPIO.setmode(GPIO.BOARD)
-		GPIO.setup(buttonsStopPin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-		GPIO.setup(buttonsRestartPin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-		GPIO.setup(buttonsWifiAPpin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-	except:
-		print("failed to start ras pi stuff")
+		try:
+				import RPi.GPIO as GPIO
+				import serial
+				GPIO.setwarnings(False)
+				GPIO.setmode(GPIO.BOARD)
+
+				GPIO.setup(pinConfig.FilamentSensor1, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+				GPIO.setup(pinConfig.FilamentSensor2, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+				GPIO.setup(pinConfig.Config, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+				GPIO.setup(pinConfig.Cancel, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+				GPIO.setup(pinConfig.Next, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+				GPIO.setup(pinConfig.FilamentLoad1, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+				GPIO.setup(pinConfig.FilamentLoad2, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+
+				GPIO.setup(pinConfig.EjectorMotor, GPIO.OUT)
+				GPIO.setup(pinConfig.LEDred, GPIO.OUT)
+				GPIO.setup(pinConfig.LEDyellow, GPIO.OUT)
+				GPIO.setup(pinConfig.LEDgreen, GPIO.OUT)
+				time.sleep(1)
+
+				
+		except:
+				print("failed to start ras pi stuff")
 
 
 
@@ -81,9 +95,9 @@ AutoDropSerialPortSpeed = ""
 printerServer = ""
 printerName = ""
 clientAcessKey = ""
-printerPositionOffsetOverideX  = ""
-printerPositionOffsetOverideY  = ""
-printerPositionOffsetOverideZ  = ""
+printerPositionOffsetOverideX	= ""
+printerPositionOffsetOverideY	= ""
+printerPositionOffsetOverideZ	= ""
 printerServer = ""
 wifiAPname = ""
 wifiAPpass = ""
@@ -97,8 +111,8 @@ if (ServerTestMode == "on"):
 	printerServer = "https://autodrop1.sparkhosted.site/api/jobsQueue/printerRequestJob"
 else:
 	printerServer = "https://go.autodrop3d.com/api/jobsQueue/printerRequestJob"
-    
-    
+		
+		
 
 
 def printServerBaseURL():
@@ -113,9 +127,9 @@ try:
 	AutoDropSerialPortSpeed = str(f.readline()).strip()
 	printerName = str(f.readline()).strip()
 	clientAcessKey = str(f.readline()).strip()
-	printerPositionOffsetOverideX  = str(f.readline()).strip()
-	printerPositionOffsetOverideY  = str(f.readline()).strip()
-	printerPositionOffsetOverideZ  = str(f.readline()).strip()
+	printerPositionOffsetOverideX	= str(f.readline()).strip()
+	printerPositionOffsetOverideY	= str(f.readline()).strip()
+	printerPositionOffsetOverideZ	= str(f.readline()).strip()
 	f.close()
 except:
 	print("No configuration file supplied. Configure from web browser")
@@ -128,13 +142,13 @@ except:
 
 
 
-CuraSlicerPathAndCommand = "CuraEngine -v -c cura.ini -s posx=0 -s posy=0 {options} -o {OutFile}.gcode {inFile}.stl    2>&1";
+CuraSlicerPathAndCommand = "CuraEngine -v -c cura.ini -s posx=0 -s posy=0 {options} -o {OutFile}.gcode {inFile}.stl		2>&1";
 
 
 
 def takeApicture():
 	subprocess.call('fswebcam -S 20 ./static/junk.png', shell=True)
-	subprocess.call('raspistill  -w 200 -h 150 -o ./static/junk.png', shell=True)
+	#subprocess.call('raspistill	-w 200 -h 150 -o ./static/junk.png', shell=True)
 	time.sleep(10)
 	
 
@@ -149,7 +163,7 @@ def liveImageFile():
 
 
 def image_to_data_url(img_file):
-    return "data:image/png;base64," + base64.encodestring(open(img_file,"rb").read()).decode('utf8')
+		return "data:image/png;base64," + base64.encodestring(open(img_file,"rb").read()).decode('utf8')
 
 
 
@@ -164,7 +178,7 @@ def index():
 #		print(p[0])
 #		listOfSerialDevices = listOfSerialDevices + ", " + p[0]
 
-	listOfSerialDevices = subprocess.check_output('ls /dev/tty*', shell=True).decode("utf-8") 
+	listOfSerialDevices = subprocess.check_output('ls /dev/tty*', shell=True).decode("utf-8")
 
 
 
@@ -172,7 +186,7 @@ def index():
 
 		AutoDropSerialPort = request.form['AutoDropSerialPort']
 
-		AutoDropSerialPortSpeed =  request.form['AutoDropSerialPortSpeed']
+		AutoDropSerialPortSpeed =	request.form['AutoDropSerialPortSpeed']
 
 		printerName = request.form['printerName']
 
@@ -211,7 +225,7 @@ def index():
 	except:
 		PLUGINFUNCTIONS = ""
 
-	return render_template('index.html', listOfSerialDevices = listOfSerialDevices, AutoDropSerialPort = AutoDropSerialPort , AutoDropSerialPortSpeed = AutoDropSerialPortSpeed, printerName = printerName,  PLUGINFUNCTIONS = PLUGINFUNCTIONS, clientAcessKey = clientAcessKey, printerPositionOffsetOverideX = printerPositionOffsetOverideX, printerPositionOffsetOverideY = printerPositionOffsetOverideY, printerPositionOffsetOverideZ = printerPositionOffsetOverideZ)
+	return render_template('index.html', listOfSerialDevices = listOfSerialDevices, AutoDropSerialPort = AutoDropSerialPort , AutoDropSerialPortSpeed = AutoDropSerialPortSpeed, printerName = printerName,	PLUGINFUNCTIONS = PLUGINFUNCTIONS, clientAcessKey = clientAcessKey, printerPositionOffsetOverideX = printerPositionOffsetOverideX, printerPositionOffsetOverideY = printerPositionOffsetOverideY, printerPositionOffsetOverideZ = printerPositionOffsetOverideZ)
 
 
 
@@ -235,13 +249,11 @@ if __name__ == "__main__":
 
 
 def EjectStuff():
- 	print("Ejecting Stuff")
-
- 	GPIO.setup(12, GPIO.OUT)
- 	GPIO.output(12, 1)
- 	time.sleep(30)
- 	GPIO.output(12, 0)
- 	time.sleep(30)
+	 print("Ejecting Stuff")
+	 GPIO.output(pinConfig.EjectorMotor, 1)
+	 time.sleep(30)
+	 GPIO.output(pinConfig.EjectorMotor, 0)
+	 time.sleep(30)
 
 
 
@@ -270,13 +282,13 @@ def offsetGcodeDuringRaft(orgNonManipulatedString = ""):
 
 	ManipulatedString = ManipulatedString.strip()
 	print("ORG GCODE " + orgNonManipulatedString)
-	print("Maniuplated Gcode " +  ManipulatedString)
+	print("Maniuplated Gcode " +	ManipulatedString)
 	return ManipulatedString
 
 
 
 def SendGcodeLine(ll = ''):
-	print("Sending :" + ll)
+	#print("Sending :" + ll)
 	if ServerTestMode != "on":
 		s.flushInput()
 		s.write(ll.encode("ascii") + b'\n')
@@ -292,18 +304,20 @@ def SendGcodeLine(ll = ''):
 			beReadingLines = 0
 			if "T:" in grbl_out:
 				beReadingLines = 1
-			if "echo:busy" in  grbl_out:
+			if "echo:busy" in	grbl_out:
 				beReadingLines = 1
 			if "ok " in grbl_out:
 				beReadingLines = 0
 	else:
 		time.sleep(.001)
 
+
+
 def PrintFile(gcodeFileName = 'test.g'):
 	global s, cancellCurentPrint, currentPrintModeIsRafting, raftOffsetX, raftOffsetY, raftOffsetZ, currentPrintLineNumber, currentPrintTotalLineNumber, printerServer, printerName, PrintNumber, printerServer, noPicNow, finalPic
 	raftOffsetY = 0
 
-
+	pinConfig.LEDstateGreen = "slow"
 	currentPrintTotalLineNumber = sum(1 for line in open(gcodeFileName))
 
 	f = open(gcodeFileName,'r');
@@ -338,15 +352,12 @@ def PrintFile(gcodeFileName = 'test.g'):
 					URLtoDownload = printerServer + "?jobID=" + PrintNumber + "&stat=Done"
 					print(URLtoDownload)
 					urlretrieveWithFail(URLtoDownload, "notifyComplete.txt")
-					while GPIO.input(buttonsRestartPin) == 1:
+					while GPIO.input(pinConfig.Next) == 1:
 						print("Hit button to continue")
 
 				elif str(l.split(b'@',1)[1],"ascii") == "finalPic":
 					finalPic = "True"
 					takeApicture()
-
-
-
 				else:
 					try:
 						exec(open("custom.py").read()+ "\n\n" + str(l.split(b'@',1)[1],"ascii"))
@@ -364,6 +375,7 @@ def PrintFile(gcodeFileName = 'test.g'):
 	# Close file and serial port
 	f.close()
 	CurrentlyPrintingRightNow = 0
+	pinConfig.LEDstateGreen = "on"
 
 def urlretrieveWithFail(OptionA = "",OptionB = ""):
 	try:
@@ -371,8 +383,10 @@ def urlretrieveWithFail(OptionA = "",OptionB = ""):
 		f.write("")
 		f.close()
 		urlretrieve(OptionA,OptionB)
+		pinConfig.LEDstateRed = "off"
 	except:
 		print("Failed Retrieve File")
+		pinConfig.LEDstateRed = "fast"
 
 
 
@@ -395,28 +409,31 @@ def StatusUpdateLoopWhilePrinting():
 			try:
 				if finalPic == "False":
 					takeApicture()
+					#print("Would have taken picture here")
 
 				else:
 					print("final picture taken")
 
-				howFarAlongInThePrintAreWe = (currentPrintLineNumber / currentPrintTotalLineNumber) * 100
+				howFarAlongInThePrintAreWe = str((currentPrintLineNumber / currentPrintTotalLineNumber) * 100)
+				
+				if (cancellCurentPrint == 1):
+				    howFarAlongInThePrintAreWe = "canceled"
 
-				data = { "jobID":PrintNumber, "name":printerName, "key":clientAcessKey, "stat":"update", "jobStatus":str(howFarAlongInThePrintAreWe), "img":image_to_data_url('./static/junk.png')}
+				data = { "jobID":PrintNumber, "name":printerName, "key":clientAcessKey, "stat":"update", "jobStatus": howFarAlongInThePrintAreWe , "img":image_to_data_url('./static/junk.png')}
 				headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
-
-				response = requests.post(printerServer , json=data,)
-
-				print(response)
-
-				serverMsg = response
-
-				print(str(serverMsg))
-				if serverMsg.find("CANCELED") > -1:
+				print("sending request now to update statius")
+				
+				#print(requests.post(printerServer , json=data).content)
+				
+				response = requests.post(printerServer , json=data).content.decode("utf-8")
+				
+				if response.find("CANCELED") > -1:
 					print("Job should be canceled now")
 					cancellCurentPrint = 1
-
+				pinConfig.LEDstateRed = "off"
 			except:
 				print("Update status failed.")
+				pinConfig.LEDstateRed = "fast"
 
 
 
@@ -429,18 +446,19 @@ def StatusUpdateLoopWhilePrinting():
 
 def MainPrinterLoop():
 	global s, AutoDropSerialPort,AutoDropSerialPortSpeed, printerServer, printerName, clientAcessKey, PrintNumber, cancellCurentPrint, finalPic
+	pinConfig.LEDstateGreen = "on"
 
 	if ServerTestMode != "on":
 		s = serial.Serial(AutoDropSerialPort,AutoDropSerialPortSpeed)
 		# Wake up grbl
 		s.write(('\r\n\r\n').encode("ascii"))
-		time.sleep(2)   # Wait for grbl to initialize
-		s.flushInput()  # Flush startup text in serial input
+		time.sleep(2)	 # Wait for grbl to initialize
+		s.flushInput()	# Flush startup text in serial input
 		s.write(('\r\n\r\n').encode("ascii"))
 
 	while 1: #loop for ever
 		cancellCurentPrint = 0
-		URLtoDownload = printerServer + "?name=" + printerName +  "&key=" + clientAcessKey
+		URLtoDownload = printerServer + "?name=" + printerName +	"&key=" + clientAcessKey
 		urlretrieveWithFail(URLtoDownload, "download.g")
 		print(URLtoDownload)
 		f = open("download.g",'r');
@@ -465,32 +483,142 @@ def MainPrinterLoop():
 			#PrintFile("end.gcode")
 
 			if cancellCurentPrint == 0:
-				URLtoDownload = printerServer + "?name=" + printerName + "&jobID=" + PrintNumber +  "&key=" + clientAcessKey + "&stat=Done"
-				print(URLtoDownload)
+				URLtoDownload = printerServer + "?name=" + printerName + "&jobID=" + PrintNumber +	"&key=" + clientAcessKey + "&stat=Done"
+				#print(URLtoDownload)
 				urlretrieveWithFail(URLtoDownload, "download.g")
 
-				URLtoDownload = printerServer + "?name=" + printerName + "&jobID=" + PrintNumber +  "&key=" + clientAcessKey + "&stat=Done"
-				print(URLtoDownload)
+				URLtoDownload = printerServer + "?name=" + printerName + "&jobID=" + PrintNumber +	"&key=" + clientAcessKey + "&stat=Done"
+				#print(URLtoDownload)
 				urlretrieveWithFail(URLtoDownload, "download.g")
 
 		time.sleep(10)
+		pinConfig.LEDstateGreen = "on"
+
+
+
+
+def LEDblinking():
+		global time
+		ledCycles = 0
+		while 1:
+				ledCycles = ledCycles + 1
+				
+				if (ledCycles == 1):
+						fastBlinkONorOFF = 1
+						slowBlinkONorOFF = 1
+				if (ledCycles == 2):
+						fastBlinkONorOFF = 0
+						slowBlinkONorOFF = 1
+				if (ledCycles == 3):
+						fastBlinkONorOFF = 1
+						slowBlinkONorOFF = 0
+				if (ledCycles == 4):
+						fastBlinkONorOFF = 0
+						slowBlinkONorOFF = 0
+				
+				
+				
+				time.sleep(.25)
+				
+				
+				
+				
+				
+#handle LED on / off
+				if (pinConfig.LEDstateRed == "off"):
+						GPIO.output(pinConfig.LEDred,1)
+				if (pinConfig.LEDstateYellow == "off"):
+						GPIO.output(pinConfig.LEDyellow,1)
+				if (pinConfig.LEDstateGreen == "off"):
+						GPIO.output(pinConfig.LEDgreen,1)
+
+				if (pinConfig.LEDstateRed == "on"):
+						GPIO.output(pinConfig.LEDred,0)
+				if (pinConfig.LEDstateYellow == "on"):
+						GPIO.output(pinConfig.LEDyellow,0)
+				if (pinConfig.LEDstateGreen == "on"):
+						GPIO.output(pinConfig.LEDgreen,0)
+
+
+
+#handle blinking led fast
+				if (pinConfig.LEDstateRed == "fast"):
+						GPIO.output(pinConfig.LEDred,fastBlinkONorOFF)
+				if (pinConfig.LEDstateYellow == "fast"):
+						GPIO.output(pinConfig.LEDyellow,fastBlinkONorOFF)
+				if (pinConfig.LEDstateGreen == "fast"):
+						GPIO.output(pinConfig.LEDgreen,fastBlinkONorOFF)
+
+#handle blinking led slow
+
+				if (pinConfig.LEDstateRed == "slow"):
+						GPIO.output(pinConfig.LEDred,slowBlinkONorOFF)
+				if (pinConfig.LEDstateYellow == "slow"):
+						GPIO.output(pinConfig.LEDyellow,slowBlinkONorOFF)
+				if (pinConfig.LEDstateGreen == "slow"):
+						GPIO.output(pinConfig.LEDgreen,slowBlinkONorOFF)
+				
+				if (ledCycles == 4):
+						ledCycles = 0
+				
+				
+				
+
+
+_thread.start_new_thread(LEDblinking,())
+
+pinConfig.LEDstateRed = "fast"
+pinConfig.LEDstateGreen = "fast"
+pinConfig.LEDstateYellow = "fast"
+time.sleep(2)
+pinConfig.LEDstateRed = "off"
+pinConfig.LEDstateGreen = "off"
+pinConfig.LEDstateYellow = "off"
+
 
 
 _thread.start_new_thread(MainPrinterLoop,())
 _thread.start_new_thread(StatusUpdateLoopWhilePrinting,())
+
+
+
+
+
+
 while 1:
 	time.sleep(.01)
-	#print(GPIO.input(buttonsStopPin))
 	if ServerTestMode != "on":
-		if GPIO.input(buttonsStopPin) == 0:
+		if GPIO.input(pinConfig.FilamentSensor1) == 0:
+			print("FilamentSensor1")
+		
+		if GPIO.input(pinConfig.FilamentSensor2) == 0:
+			print("FilamentSensor2")
+		
+		if GPIO.input(pinConfig.Next) == 0:
+			print("Next")
+		
+		if GPIO.input(pinConfig.FilamentLoad1) == 0:
+			print("FilamentLoad1")
+		
+		if GPIO.input(pinConfig.FilamentLoad2) == 0:
+			print("FilamentLoad2")
+			 
+		if GPIO.input(pinConfig.Cancel) == 0:
 			cancellCurentPrint = 1
 			print("cancelling")
-		if GPIO.input(buttonsWifiAPpin) == 0:
-			
+			 
+
+
+
+				
+
+		if GPIO.input(pinConfig.Config) == 0:
 			print("toggling ap/station mode")
 			time.sleep(2)
-			wifiAPmode = not wifiAPmode 
+			wifiAPmode = not wifiAPmode
 			if wifiAPmode == True:
 				subprocess.call('sudo ./switchToAP.sh', shell=True)
+				pinConfig.LEDstateYellow = "fast"
 			else:
 				subprocess.call('sudo ./switchToWlan.sh', shell=True)
+				pinConfig.LEDstateYellow = "off"
