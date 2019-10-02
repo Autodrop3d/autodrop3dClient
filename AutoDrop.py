@@ -288,6 +288,7 @@ def SendGcodeLine(ll = '', returnJustPrinterResponse = 0):
 		currentMachineState.s.write(ll.encode("ascii") + b'\n')
 
 		beReadingLines = 1
+		millis = int(round(time.time() * 1000))
 
 		while beReadingLines:
 			print("Sent : " + ll + " | waiting for response")
@@ -307,7 +308,10 @@ def SendGcodeLine(ll = '', returnJustPrinterResponse = 0):
 					break
 				if currentMachineState.cancellCurentPrint == 1:
 					break
-			
+				if millis + 60000 < int(round(time.time() * 1000)):
+					currentMachineState.s.write(("M114").encode("ascii") + b'\n')
+					print("Some thing must have stalled the gcode send" )
+					break
 			
 			#print("got that line back")
 			print('response : ' + grbl_out.strip())
@@ -324,35 +328,50 @@ def SendGcodeLine(ll = '', returnJustPrinterResponse = 0):
 	else:
 		time.sleep(.001)
 	if (returnJustPrinterResponse):
-		return "Sent: " + ll + "   Result: " +grbl_out
+		return "Sent: " + ll + "   Result: " + grbl_out
 	else:
 		return grbl_out
 
 
 
-def handleFilamentChange():
-	if (currentMachineState.currentMachineState.specialAction == "ejectFillament1"):
-		currentMachineState.currentMachineState.currentExtruderTemp = SendGcodeLine("M105", True).split("/")[1].split(" ")[0]
+def handleFilamentChange(areWePrinting = ""):
+	if (currentMachineState.specialAction == "ejectFillament1"):
+		currentMachineState.currentExtruderTemp = float(SendGcodeLine("M105", True).split("/")[1].split(" ")[0])
+		if currentMachineState.currentExtruderTemp == 0:
+			currentMachineState.currentExtruderTemp = 200
+			SendGcodeLine("M109 T0 S" + str(currentMachineState.currentExtruderTemp - 5)  + " B" + str(currentMachineState.currentExtruderTemp + 5)  , True)
+		if areWePrinting == "not printing":
+			SendGcodeLine("G28", True)
+			SendGcodeLine("G1 Z100", True)
 		SendGcodeLine("G91", True)
-		SendGcodeLine("G0 Z20", True)
+		if areWePrinting != "not printing":
+			SendGcodeLine("G0 Z20", True)
 		SendGcodeLine("G0 E-100", True)
 		SendGcodeLine("G0 E-100", True)
 		SendGcodeLine("G0 E-100", True)
 		SendGcodeLine("G0 E-100", True)
 		SendGcodeLine("G0 E-100", True)
 		SendGcodeLine("G0 E-100", True)
-		print(" ------------------------------------  " +  currentMachineState.currentMachineState.currentExtruderTemp)
-	if (currentMachineState.currentMachineState.specialAction == "loadFillament1"):
+		SendGcodeLine("M104 S0", True)
+		#print(" ------------------------------------  " + str( currentMachineState.currentExtruderTemp))
+	if (currentMachineState.specialAction == "loadFillament1"):
+		if currentMachineState.currentExtruderTemp == 0:
+			currentMachineState.currentExtruderTemp = 200
+		if areWePrinting == "not printing":
+			SendGcodeLine("G28", True)
+			SendGcodeLine("G1 Z100", True)
+		SendGcodeLine("M109 T0 S" + str(currentMachineState.currentExtruderTemp - 5)  + " B" + str(currentMachineState.currentExtruderTemp + 5)  , True)
 		SendGcodeLine("G0 E100", True)
 		SendGcodeLine("G0 E100", True)
 		SendGcodeLine("G0 E100", True)
 		SendGcodeLine("G0 E100", True)
 		SendGcodeLine("G0 E100", True)
 		SendGcodeLine("G0 E100", True)
-		SendGcodeLine("G1 Z-20", True)
+		if areWePrinting != "not printing":
+			SendGcodeLine("G1 Z-20", True)
 		SendGcodeLine("G90", True)
-		currentMachineState.currentMachineState.pausePrint = False
-	currentMachineState.currentMachineState.specialAction = ""
+		currentMachineState.pausePrint = False
+	currentMachineState.specialAction = ""
 
 
 
@@ -500,7 +519,12 @@ def MainPrinterLoop():
 		currentMachineState.s.write(('\r\n\r\n').encode("ascii"))
 
 	while 1: #loop for ever
+		if currentMachineState.cancellCurentPrint == 1:
+			SendGcodeLine("G28", True)
+			
 		currentMachineState.cancellCurentPrint = 0
+		handleFilamentChange("not printing")
+		currentMachineState.pausePrint = False
 		URLtoDownload = currentMachineState.printerServer + "?name=" + currentMachineState.printerName +	"&key=" + currentMachineState.clientAcessKey
 		urlretrieveWithFail(URLtoDownload, "download.g")
 		f = open("download.g",'r');
@@ -631,44 +655,44 @@ while 1:
 		
 		if GPIO.input(pinConfig.FilamentSensor1) == 0:
 			print("FilamentSensor1 Triggered")
-			if currentMachineState.currentMachineState.pausePrint == False:
+			if currentMachineState.pausePrint == False:
 				time.sleep(1)
-				currentMachineState.currentMachineState.pausePrint = True
-				currentMachineState.currentMachineState.specialAction = "ejectFillament1"
+				currentMachineState.pausePrint = True
+				currentMachineState.specialAction = "ejectFillament1"
 				time.sleep(1)
 
 		if GPIO.input(pinConfig.FilamentLoad1) == 0:
 			print("FilamentLoad1")
 			time.sleep(1)
 			if GPIO.input(pinConfig.FilamentLoad1) == 0:
-				if currentMachineState.currentMachineState.pausePrint == False:
+				if currentMachineState.pausePrint == False:
 					time.sleep(1)
-					currentMachineState.currentMachineState.pausePrint = True
-					currentMachineState.currentMachineState.specialAction = "ejectFillament1"
+					currentMachineState.pausePrint = True
+					currentMachineState.specialAction = "ejectFillament1"
 					time.sleep(1)
 			else:
-				currentMachineState.currentMachineState.specialAction = "loadFillament1"
+				currentMachineState.specialAction = "loadFillament1"
 
 
 		if GPIO.input(pinConfig.FilamentSensor2) == 0:
 			print("FilamentSensor2 Triggered")
-			if currentMachineState.currentMachineState.pausePrint == False:
+			if currentMachineState.pausePrint == False:
 				time.sleep(1)
-				currentMachineState.currentMachineState.pausePrint = True
-				currentMachineState.currentMachineState.specialAction = "ejectFillament2"
+				currentMachineState.pausePrint = True
+				currentMachineState.specialAction = "ejectFillament2"
 				time.sleep(1)
 
 		if GPIO.input(pinConfig.FilamentLoad2) == 0:
 			print("FilamentLoad2")
 			time.sleep(1)
 			if GPIO.input(pinConfig.FilamentLoad2) == 0:
-				if currentMachineState.currentMachineState.pausePrint == False:
+				if currentMachineState.pausePrint == False:
 					time.sleep(1)
-					currentMachineState.currentMachineState.pausePrint = True
-					currentMachineState.currentMachineState.specialAction = "ejectFillament2"
+					currentMachineState.pausePrint = True
+					currentMachineState.specialAction = "ejectFillament2"
 					time.sleep(1)
 			else:
-				currentMachineState.currentMachineState.specialAction = "loadFillament2"
+				currentMachineState.specialAction = "loadFillament2"
 
 
 
