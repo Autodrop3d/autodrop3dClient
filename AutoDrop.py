@@ -18,51 +18,58 @@ import base64
 import json
 
 class pinConfig:
-		FilamentSensor1 = 22
-		FilamentSensor2 = 37
-		Config = 32
-		Cancel = 12
-		Next = 33
-		FilamentLoad1 = 36
-		FilamentLoad2 = 11
+	FilamentSensor1 = 22
+	FilamentSensor2 = 37
+	Config = 32
+	Cancel = 12
+	Next = 33
+	FilamentLoad1 = 36
+	FilamentLoad2 = 11
 
-		EjectorMotor = 16
+	EjectorMotor = 16
 
-		LEDred = 7
-		LEDyellow = 29
-		LEDgreen = 18
-		
-		LEDstateRed = "off"
-		LEDstateYellow = "off"
-		LEDstateGreen = "off"
+	LEDred = 7
+	LEDyellow = 29
+	LEDgreen = 18
+	
+	LEDstateRed = "off"
+	LEDstateYellow = "off"
+	LEDstateGreen = "off"
+	
+	
+class currentMachineState:
+	pausePrint = 0
+	specialAction = ""
+	currentExtruderTemp = 0
 		
 
 		
 
 if ServerTestMode != "on":
-		try:
-				import RPi.GPIO as GPIO
-				import serial
-				GPIO.setwarnings(False)
-				GPIO.setmode(GPIO.BOARD)
+	try:
+		import RPi.GPIO as GPIO
+		import serial
+		GPIO.setwarnings(False)
+		GPIO.setmode(GPIO.BOARD)
 
-				GPIO.setup(pinConfig.FilamentSensor1, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-				GPIO.setup(pinConfig.FilamentSensor2, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-				GPIO.setup(pinConfig.Config, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-				GPIO.setup(pinConfig.Cancel, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-				GPIO.setup(pinConfig.Next, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-				GPIO.setup(pinConfig.FilamentLoad1, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-				GPIO.setup(pinConfig.FilamentLoad2, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+		GPIO.setup(pinConfig.FilamentSensor1, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+		GPIO.setup(pinConfig.FilamentSensor2, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+		GPIO.setup(pinConfig.Config, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+		GPIO.setup(pinConfig.Cancel, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+		GPIO.setup(pinConfig.Next, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+		GPIO.setup(pinConfig.FilamentLoad1, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+		GPIO.setup(pinConfig.FilamentLoad2, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
-				GPIO.setup(pinConfig.EjectorMotor, GPIO.OUT)
-				GPIO.setup(pinConfig.LEDred, GPIO.OUT)
-				GPIO.setup(pinConfig.LEDyellow, GPIO.OUT)
-				GPIO.setup(pinConfig.LEDgreen, GPIO.OUT)
-				time.sleep(1)
+		GPIO.setup(pinConfig.EjectorMotor, GPIO.OUT)
+		GPIO.output(pinConfig.EjectorMotor, 0)
+		GPIO.setup(pinConfig.LEDred, GPIO.OUT)
+		GPIO.setup(pinConfig.LEDyellow, GPIO.OUT)
+		GPIO.setup(pinConfig.LEDgreen, GPIO.OUT)
+		time.sleep(1)
 
-				
-		except:
-				print("failed to start ras pi stuff")
+			
+	except:
+		print("failed to start ras pi stuff")
 
 
 
@@ -147,7 +154,7 @@ CuraSlicerPathAndCommand = "CuraEngine -v -c cura.ini -s posx=0 -s posy=0 {optio
 
 
 def takeApicture():
-	subprocess.call('fswebcam -S 20 ./static/junk.png', shell=True)
+	subprocess.call('fswebcam -q -S 20 ./static/junk.png >> /dev/null', shell=True)
 	#subprocess.call('raspistill	-w 200 -h 150 -o ./static/junk.png', shell=True)
 	time.sleep(10)
 	
@@ -172,11 +179,6 @@ def index():
 	global AutoDropSerialPort,AutoDropSerialPortSpeed, printerServer, printerName, clientAcessKey, printerPositionOffsetOverideX, printerPositionOffsetOverideY, printerPositionOffsetOverideZ
 
 	listOfSerialDevices = ""
-
-#	ports = list(serial.tools.list_ports.comports())
-#	for p in ports:
-#		print(p[0])
-#		listOfSerialDevices = listOfSerialDevices + ", " + p[0]
 
 	listOfSerialDevices = subprocess.check_output('ls /dev/tty*', shell=True).decode("utf-8")
 
@@ -262,9 +264,8 @@ def EjectStuff():
 def offsetGcodeDuringRaft(orgNonManipulatedString = ""):
 	global printerPositionOffsetOverideX, printerPositionOffsetOverideY, printerPositionOffsetOverideZ, raftOffsetX, raftOffsetY, raftOffsetZ
 	ManipulatedString = ""
-	print(orgNonManipulatedString)
 	for member in orgNonManipulatedString.split( ):
-		print(member[0], member)
+		#print(member[0], member)
 		if (member[0] == "X"):
 			member = member.replace("X","")
 			member = "X" + str(round(float(member) + float(printerPositionOffsetOverideX) + raftOffsetX, 6) )
@@ -273,22 +274,19 @@ def offsetGcodeDuringRaft(orgNonManipulatedString = ""):
 			member = "Y" + str(round(float(member) + float(printerPositionOffsetOverideY) + raftOffsetY, 6) )
 		if (member[0] == "Z"):
 			member = member.replace("Z","")
-			print(float(member))
-			print("Member with z removed", member)
-			print("mebers value"+member+"endofmember value")
 			member = "Z" + str(round(float(member) + float(printerPositionOffsetOverideZ) + raftOffsetZ, 6) )
 
 		ManipulatedString = ManipulatedString + " " + member + " "
 
 	ManipulatedString = ManipulatedString.strip()
-	print("ORG GCODE " + orgNonManipulatedString)
-	print("Maniuplated Gcode " +	ManipulatedString)
+	#print("ORG GCODE " + orgNonManipulatedString +"end of original gcode")
+	#print("Maniuplated Gcode " +	ManipulatedString)
 	return ManipulatedString
 
 
 
-def SendGcodeLine(ll = ''):
-	#print("Sending :" + ll)
+def SendGcodeLine(ll = '', returnJustPrinterResponse = 0):
+	global cancellCurentPrint
 	if ServerTestMode != "on":
 		s.flushInput()
 		s.write(ll.encode("ascii") + b'\n')
@@ -297,7 +295,24 @@ def SendGcodeLine(ll = ''):
 
 		while beReadingLines:
 			print("Sent : " + ll + " | waiting for response")
-			grbl_out = str(s.readline(),"ascii") # Wait for grbl response with carriage return
+			grbl_out = ""
+
+			thatEndOfLineIsHere = False
+			while True:
+				for c in s.read():
+					grbl_out = grbl_out + str(chr(c))
+					if (chr(c) == '\n'):
+						#print("We got an end of line character:")
+						thatEndOfLineIsHere = True
+						break
+					if cancellCurentPrint == 1:
+						break
+				if (thatEndOfLineIsHere == True):
+					break
+				if cancellCurentPrint == 1:
+					break
+			
+			
 			#print("got that line back")
 			print('response : ' + grbl_out.strip())
 			s.flushInput()
@@ -306,10 +321,45 @@ def SendGcodeLine(ll = ''):
 				beReadingLines = 1
 			if "echo:busy" in	grbl_out:
 				beReadingLines = 1
-			if "ok " in grbl_out:
+			if "ok" in grbl_out:
 				beReadingLines = 0
+			if cancellCurentPrint == 1:
+				break
 	else:
 		time.sleep(.001)
+	if (returnJustPrinterResponse):
+		return "Sent: " + ll + "   Result: " +grbl_out
+	else:
+		return grbl_out
+
+
+
+def handleFilamentChange():
+	if (currentMachineState.specialAction == "ejectFillament1"):
+		currentMachineState.currentExtruderTemp = SendGcodeLine("M105", True).split("/")[1].split(" ")[0]
+		SendGcodeLine("G91", True)
+		SendGcodeLine("G0 Z20", True)
+		SendGcodeLine("G0 E-100", True)
+		SendGcodeLine("G0 E-100", True)
+		SendGcodeLine("G0 E-100", True)
+		SendGcodeLine("G0 E-100", True)
+		SendGcodeLine("G0 E-100", True)
+		SendGcodeLine("G0 E-100", True)
+		print(" ------------------------------------  " +  currentMachineState.currentExtruderTemp)
+	if (currentMachineState.specialAction == "loadFillament1"):
+		SendGcodeLine("G0 E100", True)
+		SendGcodeLine("G0 E100", True)
+		SendGcodeLine("G0 E100", True)
+		SendGcodeLine("G0 E100", True)
+		SendGcodeLine("G0 E100", True)
+		SendGcodeLine("G0 E100", True)
+		SendGcodeLine("G1 Z-20", True)
+		SendGcodeLine("G90", True)
+		currentMachineState.pausePrint = False
+	currentMachineState.specialAction = ""
+
+
+
 
 
 
@@ -333,42 +383,46 @@ def PrintFile(gcodeFileName = 'test.g'):
 		l = line.strip() # Strip all EOL characters for consistency
 		l = l.encode("ascii")
 		l = l.strip();
-
-		if l.startswith(b';') |( l == ''):
-			print("This is a comment line :*" +str( l) + "*")
-
-			if l.startswith(b';LAYER:-2'):
-				currentPrintModeIsRafting = currentPrintModeIsRafting + 1
-				raftOffsetY = raftOffsetY - .5
-			if l.startswith(b';LAYER:0'):
-				currentPrintModeIsRafting = 0
-			if str(l).find(";@") != -1:
-				if str(l.split(b'@',1)[1],"ascii") == "eject":
-					EjectStuff()
-				elif str(l.split(b'@',1)[1],"ascii") == "notifycomplete":
-					URLtoDownload = printerServer + "?jobID=" + PrintNumber + "&stat=Done"
-					print(URLtoDownload)
-					urlretrieveWithFail(URLtoDownload, "notifyComplete.txt")
-					URLtoDownload = printerServer + "?jobID=" + PrintNumber + "&stat=Done"
-					print(URLtoDownload)
-					urlretrieveWithFail(URLtoDownload, "notifyComplete.txt")
-					while GPIO.input(pinConfig.Next) == 1:
-						print("Hit button to continue")
-
-				elif str(l.split(b'@',1)[1],"ascii") == "finalPic":
-					finalPic = "True"
-					takeApicture()
-				else:
-					try:
-						exec(open("custom.py").read()+ "\n\n" + str(l.split(b'@',1)[1],"ascii"))
-					except:
-						print("Problem executing plug in command " + str(l.split(b'@',1)[1],"ascii"))
-
-		else:
-			ll = str(l.split(b';',1)[0],"ascii")
-			ll = offsetGcodeDuringRaft(ll)
-			if ll != "":
-				SendGcodeLine(ll)
+		
+		
+		while currentMachineState.pausePrint:
+			handleFilamentChange()
+			time.sleep(1)
+		
+		
+		if (l != ""):
+			if l.startswith(b';') |( l == ''):
+				print("comment line :*" + l.decode("utf-8"))
+	
+				if l.startswith(b';LAYER:-2'):
+					currentPrintModeIsRafting = currentPrintModeIsRafting + 1
+					raftOffsetY = raftOffsetY - .5
+				if l.startswith(b';LAYER:0'):
+					currentPrintModeIsRafting = 0
+				if str(l).find(";@") != -1:
+					if str(l.split(b'@',1)[1],"ascii") == "eject":
+						EjectStuff()
+					elif str(l.split(b'@',1)[1],"ascii") == "notifycomplete":
+						URLtoDownload = printerServer + "?jobID=" + PrintNumber + "&stat=Done"
+						urlretrieveWithFail(URLtoDownload, "notifyComplete.txt")
+						urlretrieveWithFail(URLtoDownload, "notifyComplete.txt")
+						while GPIO.input(pinConfig.Next) == 1:
+							print("Hit button to continue")
+	
+					elif str(l.split(b'@',1)[1],"ascii") == "finalPic":
+						finalPic = "True"
+						takeApicture()
+					else:
+						try:
+							exec(open("custom.py").read()+ "\n\n" + str(l.split(b'@',1)[1],"ascii"))
+						except:
+							print("Problem executing plug in command " + str(l.split(b'@',1)[1],"ascii"))
+	
+			else:
+				ll = str(l.split(b';',1)[0],"ascii")
+				ll = offsetGcodeDuringRaft(ll)
+				if ll != "":
+					SendGcodeLine(ll)
 
 
 
@@ -378,6 +432,7 @@ def PrintFile(gcodeFileName = 'test.g'):
 	pinConfig.LEDstateGreen = "on"
 
 def urlretrieveWithFail(OptionA = "",OptionB = ""):
+	print(OptionA)
 	try:
 		f = open(OptionB,'w');
 		f.write("")
@@ -397,8 +452,9 @@ def manualcontroll():
 	global s, printerPositionOffsetOverideX , printerPositionOffsetOverideY, printerPositionOffsetOverideZ
 	s = serial.Serial(AutoDropSerialPort,int(AutoDropSerialPortSpeed))
 	piceOfGcodeToSend = request.args['gcode']
-	SendGcodeLine(offsetGcodeDuringRaft(piceOfGcodeToSend))
-	return piceOfGcodeToSend
+	manualGcodeSendResponse = SendGcodeLine(offsetGcodeDuringRaft(piceOfGcodeToSend))
+	print("Manual send response should be " + manualGcodeSendResponse)
+	return manualGcodeSendResponse
 
 def StatusUpdateLoopWhilePrinting():
 	global currentPrintLineNumber, currentPrintTotalLineNumber, printerServer, printerName, cancellCurentPrint, clientAcessKey, finalPic
@@ -409,8 +465,6 @@ def StatusUpdateLoopWhilePrinting():
 			try:
 				if finalPic == "False":
 					takeApicture()
-					#print("Would have taken picture here")
-
 				else:
 					print("final picture taken")
 
@@ -421,9 +475,6 @@ def StatusUpdateLoopWhilePrinting():
 
 				data = { "jobID":PrintNumber, "name":printerName, "key":clientAcessKey, "stat":"update", "jobStatus": howFarAlongInThePrintAreWe , "img":image_to_data_url('./static/junk.png')}
 				headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
-				print("sending request now to update statius")
-				
-				#print(requests.post(printerServer , json=data).content)
 				
 				response = requests.post(printerServer , json=data).content.decode("utf-8")
 				
@@ -460,13 +511,12 @@ def MainPrinterLoop():
 		cancellCurentPrint = 0
 		URLtoDownload = printerServer + "?name=" + printerName +	"&key=" + clientAcessKey
 		urlretrieveWithFail(URLtoDownload, "download.g")
-		print(URLtoDownload)
 		f = open("download.g",'r');
 		serverMsg = str(f.readline())
 		print(str(serverMsg))
 
 		if serverMsg.find(";START") == -1:
-			print("Np print job for you")
+			print("No print job for you")
 			f.close()
 		else:
 			bla = str(f.readline()).strip()
@@ -478,17 +528,15 @@ def MainPrinterLoop():
 
 			f.close()
 
-			#PrintFile("start.gcode")
+
 			PrintFile("download.g")
-			#PrintFile("end.gcode")
+
 
 			if cancellCurentPrint == 0:
 				URLtoDownload = printerServer + "?name=" + printerName + "&jobID=" + PrintNumber +	"&key=" + clientAcessKey + "&stat=Done"
-				#print(URLtoDownload)
 				urlretrieveWithFail(URLtoDownload, "download.g")
 
 				URLtoDownload = printerServer + "?name=" + printerName + "&jobID=" + PrintNumber +	"&key=" + clientAcessKey + "&stat=Done"
-				#print(URLtoDownload)
 				urlretrieveWithFail(URLtoDownload, "download.g")
 
 		time.sleep(10)
@@ -588,29 +636,62 @@ _thread.start_new_thread(StatusUpdateLoopWhilePrinting,())
 while 1:
 	time.sleep(.01)
 	if ServerTestMode != "on":
-		if GPIO.input(pinConfig.FilamentSensor1) == 0:
-			print("FilamentSensor1")
 		
+		
+		if GPIO.input(pinConfig.FilamentSensor1) == 0:
+			print("FilamentSensor1 Triggered")
+			if currentMachineState.pausePrint == False:
+				time.sleep(1)
+				currentMachineState.pausePrint = True
+				currentMachineState.specialAction = "ejectFillament1"
+				time.sleep(1)
+
+		if GPIO.input(pinConfig.FilamentLoad1) == 0:
+			print("FilamentLoad1")
+			time.sleep(1)
+			if GPIO.input(pinConfig.FilamentLoad1) == 0:
+				if currentMachineState.pausePrint == False:
+					time.sleep(1)
+					currentMachineState.pausePrint = True
+					currentMachineState.specialAction = "ejectFillament1"
+					time.sleep(1)
+			else:
+				currentMachineState.specialAction = "loadFillament1"
+
+
 		if GPIO.input(pinConfig.FilamentSensor2) == 0:
-			print("FilamentSensor2")
+			print("FilamentSensor2 Triggered")
+			if currentMachineState.pausePrint == False:
+				time.sleep(1)
+				currentMachineState.pausePrint = True
+				currentMachineState.specialAction = "ejectFillament2"
+				time.sleep(1)
+
+		if GPIO.input(pinConfig.FilamentLoad2) == 0:
+			print("FilamentLoad2")
+			time.sleep(1)
+			if GPIO.input(pinConfig.FilamentLoad2) == 0:
+				if currentMachineState.pausePrint == False:
+					time.sleep(1)
+					currentMachineState.pausePrint = True
+					currentMachineState.specialAction = "ejectFillament2"
+					time.sleep(1)
+			else:
+				currentMachineState.specialAction = "loadFillament2"
+
+
+
+
+
+
+
 		
 		if GPIO.input(pinConfig.Next) == 0:
 			print("Next")
-		
-		if GPIO.input(pinConfig.FilamentLoad1) == 0:
-			print("FilamentLoad1")
-		
-		if GPIO.input(pinConfig.FilamentLoad2) == 0:
-			print("FilamentLoad2")
 			 
 		if GPIO.input(pinConfig.Cancel) == 0:
 			cancellCurentPrint = 1
 			print("cancelling")
-			 
-
-
-
-				
 
 		if GPIO.input(pinConfig.Config) == 0:
 			print("toggling ap/station mode")
