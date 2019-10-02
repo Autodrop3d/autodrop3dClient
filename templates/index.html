@@ -1741,38 +1741,32 @@
 
         <div id="PrinterSettings" class="w3-container w3-border city">
             AutoDropSerialPort:<br>
-            <input type="text" name="AutoDropSerialPort" value="{{ AutoDropSerialPort }}"><br>
-	    {{ listOfSerialDevices }}
-	    <br>
-	    AutoDropSerialPortSpeed:<br>
+            <input type="text" name="AutoDropSerialPort" id="AutoDropSerialPort" value="{{ AutoDropSerialPort }}"><br>
+            <select id="serialPortListing"
+            	onfocus='this.size=10;'
+							onblur='this.size=1;'
+							onchange='this.size=1; this.blur(); document.getElementById("AutoDropSerialPort").value = this.value;'></select>
+	    			<br>
+	    			AutoDropSerialPortSpeed:<br>
             <input type="text" name="AutoDropSerialPortSpeed" value="{{ AutoDropSerialPortSpeed }}"><br>
-            printerName:<br>
+            <br>
+            printerID:<br>
             <input type="text" name="printerName" value="{{ printerName }}"><br>
+	    			PrinterAPIkey:<br>
+            <input type="text" name="clientAcessKey" value="{{ clientAcessKey }}" ><br>
+            
+            <br>
             ZERO POINT OFFSET X:<br>
             <input type="text" name="printerPositionOffsetOverideX" value="{{ printerPositionOffsetOverideX }}"><br>
             ZERO POINT OFFSET Y:<br>
             <input type="text" name="printerPositionOffsetOverideY" value="{{ printerPositionOffsetOverideY }}"><br>
             ZERO POINT OFFSET Z:<br>
             <input type="text" name="printerPositionOffsetOverideZ" value="{{ printerPositionOffsetOverideZ }}"><br>
-	    clientAcessKey:<br>
-            <input type="text" name="clientAcessKey" value="{{ clientAcessKey }}" ><br>
-	    wifiAPname:<br>
+						<br>
+	    			wifiAPname:<br>
             <input type="text" name="wifiAPname" value="{{ wifiAPname }}" ><br>
-	    wifiAPpass:<br>
+	    			wifiAPpass:<br>
             <input type="text" name="wifiAPpass" value="{{ wifiAPpass }}" ><br>
-
-ODOD
-
-
-
-
-
-
-
-
-
-
-
 
 
         </div>
@@ -1836,4 +1830,37 @@ for (var i = 0; i < count; i++) {
         }
     }
 }
+
+
+function showSerialDevicesList(){
+	var select = document.getElementById('serialPortListing');
+	listOfAvailableSerialPorts = `{{ listOfSerialDevices }}`
+	listOfAvailableSerialPorts.trim()
+	serialArray = listOfAvailableSerialPorts.split(/\r?\n/);
+	
+	var opt = "";
+	var el = document.createElement("option");
+	el.textContent = opt;
+	el.value = opt;
+	select.appendChild(el);
+	
+	for (var i = 0, x = serialArray.length; i < x; i++) {
+		var opt = serialArray[i];
+		var el = document.createElement("option");
+		el.textContent = opt;
+		el.value = opt;
+		select.appendChild(el);
+	}
+}
+
+
+
+
+
+
+ 
+
+showSerialDevicesList()
+
+
 </script>
