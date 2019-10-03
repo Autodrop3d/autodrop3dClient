@@ -77,7 +77,26 @@ class currentMachineState:
 	
 	wifiAPmode = False
 
-		
+
+
+
+
+# Importing socket library
+import socket
+  
+# Function to display hostname and
+# IP address
+def get_Host_name_IP():
+	try:
+		host_name = socket.gethostname()
+		host_ip = socket.gethostbyname(host_name)
+		print("Hostname :  ",host_name)
+		print("IP : ",host_ip)
+	except:
+		print("unable to get IP")
+get_Host_name_IP()
+
+
 
 if ServerTestMode != "on":
 	try:
@@ -128,7 +147,7 @@ def printServerBaseURL():
 
 
 try:
-	f = open("settings.txt",'r');
+	f = open("../settings.txt",'r');
 	currentMachineState.AutoDropSerialPort = str(f.readline()).strip()
 	currentMachineState.AutoDropSerialPortSpeed = str(f.readline()).strip()
 	currentMachineState.printerName = str(f.readline()).strip()
@@ -198,10 +217,10 @@ def index():
 		currentMachineState.printerPositionOffsetOverideZ = request.form['printerPositionOffsetOverideZ']
 
 		PLUGINFUNCTIONS = request.form['PLUGINFUNCTIONS'].replace("\r",'')
-		open("custom.py",'w').write(PLUGINFUNCTIONS)
+		open("../custom.py",'w').write(PLUGINFUNCTIONS)
 
 
-		f = open("settings.txt",'w');
+		f = open("../settings.txt",'w');
 		f.write( currentMachineState.AutoDropSerialPort + "\n")
 		f.write( currentMachineState.AutoDropSerialPortSpeed + "\n")
 		#f.write( currentMachineState.printerServer + "\n")
@@ -221,7 +240,7 @@ def index():
 
 
 	try:
-		PLUGINFUNCTIONS = open("custom.py",'r').read()
+		PLUGINFUNCTIONS = open("../custom.py",'r').read()
 	except:
 		PLUGINFUNCTIONS = ""
 
@@ -286,12 +305,12 @@ def SendGcodeLine(ll = '', returnJustPrinterResponse = 0):
 	if ServerTestMode != "on":
 		currentMachineState.s.flushInput()
 		currentMachineState.s.write(ll.encode("ascii") + b'\n')
+		print("Sent : " + ll + " | waiting for response")
 
 		beReadingLines = 1
 		millis = int(round(time.time() * 1000))
 
 		while beReadingLines:
-			print("Sent : " + ll + " | waiting for response")
 			grbl_out = ""
 
 			thatEndOfLineIsHere = False
@@ -319,8 +338,10 @@ def SendGcodeLine(ll = '', returnJustPrinterResponse = 0):
 			beReadingLines = 0
 			if "T:" in grbl_out:
 				beReadingLines = 1
+				millis = int(round(time.time() * 1000))
 			if "echo:busy" in	grbl_out:
 				beReadingLines = 1
+				millis = int(round(time.time() * 1000))
 			if "ok" in grbl_out:
 				beReadingLines = 0
 			if currentMachineState.cancellCurentPrint == 1:
@@ -328,7 +349,7 @@ def SendGcodeLine(ll = '', returnJustPrinterResponse = 0):
 	else:
 		time.sleep(.001)
 	if (returnJustPrinterResponse):
-		return "Sent: " + ll + "   Result: " + grbl_out
+		return "    Sent : " + ll + "   Result: " + grbl_out
 	else:
 		return grbl_out
 
@@ -423,12 +444,18 @@ def PrintFile(gcodeFileName = 'test.g'):
 						while GPIO.input(pinConfig.Next) == 1:
 							print("Hit button to continue")
 	
-					elif str(l.split(b'@',1)[1],"ascii") == "currentMachineState.finalPic":
+					elif str(l.split(b'@',1)[1],"ascii") == "finalPic":
+						currentMachineState.finalPic = "True"
+						takeApicture()
+					elif str(l.split(b'@',1)[1],"ascii") == "finalPic":
+						currentMachineState.finalPic = "True"
+						takeApicture()
+					elif str(l.split(b'@',1)[1],"ascii") == "finalPic":
 						currentMachineState.finalPic = "True"
 						takeApicture()
 					else:
 						try:
-							exec(open("custom.py").read()+ "\n\n" + str(l.split(b'@',1)[1],"ascii"))
+							exec(open("../custom.py").read()+ "\n\n" + str(l.split(b'@',1)[1],"ascii"))
 						except:
 							print("Problem executing plug in command " + str(l.split(b'@',1)[1],"ascii"))
 	
@@ -711,10 +738,16 @@ while 1:
 		if GPIO.input(pinConfig.Config) == 0:
 			print("toggling ap/station mode")
 			time.sleep(2)
-			currentMachineState.wifiAPmode = not currentMachineState.wifiAPmode
-			if currentMachineState.wifiAPmode == True:
-				subprocess.call('sudo ./switchToAP.sh', shell=True)
-				pinConfig.LEDstateYellow = "fast"
+			if GPIO.input(pinConfig.Config) == 0:
+				print("updating client")
+				subprocess.call('git reset --hard', shell=True)
+				subprocess.call('git pull', shell=True)
+				subprocess.call('reboot now', shell=True)
 			else:
-				subprocess.call('sudo ./switchToWlan.sh', shell=True)
-				pinConfig.LEDstateYellow = "off"
+				currentMachineState.wifiAPmode = not currentMachineState.wifiAPmode
+				if currentMachineState.wifiAPmode == True:
+					subprocess.call('sudo ./switchToAP.sh', shell=True)
+					pinConfig.LEDstateYellow = "fast"
+				else:
+					subprocess.call('sudo ./switchToWlan.sh', shell=True)
+					pinConfig.LEDstateYellow = "off"
