@@ -739,10 +739,10 @@ while 1:
 			print("toggling ap/station mode")
 			time.sleep(2)
 			if GPIO.input(pinConfig.Config) == 0:
+				pinConfig.LEDstateYellow = "slow"
+				time.sleep(5)
 				print("updating client")
-				subprocess.call('git reset --hard', shell=True)
-				subprocess.call('git pull', shell=True)
-				subprocess.call('reboot now', shell=True)
+				subprocess.call('git reset --hard  && git pull && reboot now', shell=True)
 			else:
 				currentMachineState.wifiAPmode = not currentMachineState.wifiAPmode
 				if currentMachineState.wifiAPmode == True:
