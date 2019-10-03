@@ -1725,7 +1725,7 @@
             Settings
         </button>
         <button class="w3-bar-item w3-button tablink" onclick="ShowTab(event,'Advanced')">
-          Advanced GCODE &Macros
+          	Macros
         </button>
         <button class="w3-bar-item w3-button tablink" onclick="ShowTab(event,'machineControll')">
           Machine Controll
@@ -1767,15 +1767,16 @@
             <input type="text" name="wifiAPname" value="{{ wifiAPname }}" ><br>
 	    			wifiAPpass:<br>
             <input type="text" name="wifiAPpass" value="{{ wifiAPpass }}" ><br>
+            <br>
 
 
         </div>
 
         <div id="Advanced" class="w3-container w3-border city" style="display:none">
-            <span>
-                <textarea rows="9" name="PLUGINFUNCTIONS" form="usrform"
-                          style="width:100%">{{ PLUGINFUNCTIONS }}</textarea><br>
-            </span>
+								Python3 Macro functions:
+                <textarea name="PLUGINFUNCTIONS" form="usrform"
+                          style="width:100%;height: calc(100% - 180px);">{{ PLUGINFUNCTIONS }}</textarea><br>
+            <br>
         </div>
 
     </form>
