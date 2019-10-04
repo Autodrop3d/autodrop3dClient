@@ -660,7 +660,7 @@ _thread.start_new_thread(LEDblinking,())
 pinConfig.LEDstateRed = "fast"
 pinConfig.LEDstateGreen = "fast"
 pinConfig.LEDstateYellow = "fast"
-time.sleep(2)
+time.sleep(20)
 pinConfig.LEDstateRed = "off"
 pinConfig.LEDstateGreen = "off"
 pinConfig.LEDstateYellow = "off"
