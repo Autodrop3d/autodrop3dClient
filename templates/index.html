@@ -1791,10 +1791,10 @@
           <br><button onclick='document.getElementById("camera").src = "image.png?time=" + new Date().getTime(); ;'>Refresh</button><br>
 
         </div>
-        <a href="./manualcontroll?gcode=G28" target="gcodeSenderResult">HOME MACHINE</a><br>
-        <a href="./manualcontroll?gcode=G1 X0 Y0 Z0" target="gcodeSenderResult">GOTO 0,0,0</a><br>
+        <a href="./manualcontrol?gcode=G28" target="gcodeSenderResult">HOME MACHINE</a><br>
+        <a href="./manualcontrol?gcode=G1 X0 Y0 Z0" target="gcodeSenderResult">GOTO 0,0,0</a><br>
         <input id="gcodeToSend" ></input> <button onclick="
-        document.getElementById('gcodeSenderResult').src = './manualcontroll?gcode=' + document.getElementById('gcodeToSend').value;
+        document.getElementById('gcodeSenderResult').src = './manualcontrol?gcode=' + document.getElementById('gcodeToSend').value;
         ">
         Send Gcode</button>
         <br>
