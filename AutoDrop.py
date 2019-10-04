@@ -444,12 +444,10 @@ def PrintFile(gcodeFileName = 'test.g'):
 						while GPIO.input(pinConfig.Next) == 1:
 							print("Hit button to continue")
 	
-					elif str(l.split(b'@',1)[1],"ascii") == "finalPic":
-						currentMachineState.finalPic = "True"
-						takeApicture()
-					elif str(l.split(b'@',1)[1],"ascii") == "finalPic":
-						currentMachineState.finalPic = "True"
-						takeApicture()
+					elif str(l.split(b'@',1)[1],"ascii") == "ejector-out":
+						GPIO.output(pinConfig.EjectorMotor, 1)
+					elif str(l.split(b'@',1)[1],"ascii") == "ejector-in":
+						GPIO.output(pinConfig.EjectorMotor, 0)
 					elif str(l.split(b'@',1)[1],"ascii") == "finalPic":
 						currentMachineState.finalPic = "True"
 						takeApicture()
@@ -660,7 +658,7 @@ _thread.start_new_thread(LEDblinking,())
 pinConfig.LEDstateRed = "fast"
 pinConfig.LEDstateGreen = "fast"
 pinConfig.LEDstateYellow = "fast"
-time.sleep(20)
+time.sleep(2)
 pinConfig.LEDstateRed = "off"
 pinConfig.LEDstateGreen = "off"
 pinConfig.LEDstateYellow = "off"
