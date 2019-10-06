@@ -82,6 +82,7 @@ class currentMachineState:
 
 
 # Importing socket library
+import os
 import socket
   
 # Function to display hostname and
@@ -89,10 +90,12 @@ import socket
 def get_Host_name_IP():
 	host_ip = ""
 	try:
-		host_name = socket.gethostname()
-		host_ip = socket.gethostbyname(host_name)
-		#print("Hostname :  ",host_name)
-		#print("IP : ",host_ip)
+		getMeSomeIPinfo = os.popen("ip -4 route show default").read().split()
+		soThing = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+		soThing.connect((getMeSomeIPinfo[2], 0))
+		host_ip = soThing.getsockname()[0]
+		print(host_ip)
+
 	except:
 		print("unable to get IP")
 		
