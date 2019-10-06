@@ -87,14 +87,17 @@ import socket
 # Function to display hostname and
 # IP address
 def get_Host_name_IP():
+	host_ip = ""
 	try:
 		host_name = socket.gethostname()
 		host_ip = socket.gethostbyname(host_name)
-		print("Hostname :  ",host_name)
-		print("IP : ",host_ip)
+		#print("Hostname :  ",host_name)
+		#print("IP : ",host_ip)
 	except:
 		print("unable to get IP")
-get_Host_name_IP()
+		
+	return host_ip
+print("Machine IP address is: " + get_Host_name_IP())
 
 
 
@@ -438,16 +441,18 @@ def PrintFile(gcodeFileName = 'test.g'):
 					if str(l.split(b'@',1)[1],"ascii") == "eject":
 						EjectStuff()
 					elif str(l.split(b'@',1)[1],"ascii") == "notifycomplete":
-						URLtoDownload = currentMachineState.printerServer + "?jobID=" + currentMachineState.PrintNumber + "&stat=Done"
+						URLtoDownload = currentMachineState.printerServer + "?jobID=" + currentMachineState.PrintNumber + "&stat=Done" + "&ip=" + get_Host_name_IP()
 						urlretrieveWithFail(URLtoDownload, "notifyComplete.txt")
 						urlretrieveWithFail(URLtoDownload, "notifyComplete.txt")
 						while GPIO.input(pinConfig.Next) == 1:
 							print("Hit button to continue")
 	
-					elif str(l.split(b'@',1)[1],"ascii") == "ejector-out":
-						GPIO.output(pinConfig.EjectorMotor, 1)
-					elif str(l.split(b'@',1)[1],"ascii") == "ejector-in":
-						GPIO.output(pinConfig.EjectorMotor, 0)
+					elif str(l.split(b'@',1)[1],"ascii") == "finalPic":
+						currentMachineState.finalPic = "True"
+						takeApicture()
+					elif str(l.split(b'@',1)[1],"ascii") == "finalPic":
+						currentMachineState.finalPic = "True"
+						takeApicture()
 					elif str(l.split(b'@',1)[1],"ascii") == "finalPic":
 						currentMachineState.finalPic = "True"
 						takeApicture()
@@ -486,8 +491,8 @@ def urlretrieveWithFail(OptionA = "",OptionB = ""):
 
 
 
-@app.route('/manualcontrol',methods = ['GET', 'POST'])
-def manualcontrol():
+@app.route('/manualcontroll',methods = ['GET', 'POST'])
+def manualcontroll():
 	currentMachineState.s = serial.Serial(currentMachineState.AutoDropSerialPort,int(currentMachineState.AutoDropSerialPortSpeed))
 	piceOfGcodeToSend = request.args['gcode']
 	manualGcodeSendResponse = SendGcodeLine(offsetGcodeDuringRaft(piceOfGcodeToSend))
@@ -510,7 +515,7 @@ def StatusUpdateLoopWhilePrinting():
 				if (currentMachineState.cancellCurentPrint == 1):
 				    howFarAlongInThePrintAreWe = "canceled"
 
-				data = { "jobID":currentMachineState.PrintNumber, "name":currentMachineState.printerName, "key":currentMachineState.clientAcessKey, "stat":"update", "jobStatus": howFarAlongInThePrintAreWe , "img":image_to_data_url('./static/junk.png')}
+				data = { "jobID":currentMachineState.PrintNumber, "name":currentMachineState.printerName, "key":currentMachineState.clientAcessKey, "stat":"update", "jobStatus": howFarAlongInThePrintAreWe , "img":image_to_data_url('./static/junk.png'), "ip": get_Host_name_IP()}
 				headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
 				
 				response = requests.post(currentMachineState.printerServer , json=data).content.decode("utf-8")
@@ -550,7 +555,7 @@ def MainPrinterLoop():
 		currentMachineState.cancellCurentPrint = 0
 		handleFilamentChange("not printing")
 		currentMachineState.pausePrint = False
-		URLtoDownload = currentMachineState.printerServer + "?name=" + currentMachineState.printerName +	"&key=" + currentMachineState.clientAcessKey
+		URLtoDownload = currentMachineState.printerServer + "?name=" + currentMachineState.printerName +	"&key=" + currentMachineState.clientAcessKey + "&ip=" + get_Host_name_IP()
 		urlretrieveWithFail(URLtoDownload, "download.g")
 		f = open("download.g",'r');
 		serverMsg = str(f.readline())
@@ -574,10 +579,10 @@ def MainPrinterLoop():
 
 
 			if currentMachineState.cancellCurentPrint == 0:
-				URLtoDownload = currentMachineState.printerServer + "?name=" + currentMachineState.printerName + "&jobID=" + currentMachineState.PrintNumber +	"&key=" + currentMachineState.clientAcessKey + "&stat=Done"
+				URLtoDownload = currentMachineState.printerServer + "?name=" + currentMachineState.printerName + "&jobID=" + currentMachineState.PrintNumber +	"&key=" + currentMachineState.clientAcessKey + "&stat=Done" + "&ip=" + get_Host_name_IP()
 				urlretrieveWithFail(URLtoDownload, "download.g")
 
-				URLtoDownload = currentMachineState.printerServer + "?name=" + currentMachineState.printerName + "&jobID=" + currentMachineState.PrintNumber +	"&key=" + currentMachineState.clientAcessKey + "&stat=Done"
+				URLtoDownload = currentMachineState.printerServer + "?name=" + currentMachineState.printerName + "&jobID=" + currentMachineState.PrintNumber +	"&key=" + currentMachineState.clientAcessKey + "&stat=Done" + "&ip=" + get_Host_name_IP()
 				urlretrieveWithFail(URLtoDownload, "download.g")
 
 		time.sleep(10)
