@@ -1793,6 +1793,11 @@
         </div>
         <a href="./manualcontrol?gcode=G28" target="gcodeSenderResult">HOME MACHINE</a><br>
         <a href="./manualcontrol?gcode=G1 X0 Y0 Z0" target="gcodeSenderResult">GOTO 0,0,0</a><br>
+	
+	<a href="./manualcontrol?gcode=G1 X-35 Y-35 Z0" target="gcodeSenderResult">Level Point 1</a><br>
+	<a href="./manualcontrol?gcode=G1 X35 Y-35 Z0" target="gcodeSenderResult">Level Point 2</a><br>
+	<a href="./manualcontrol?gcode=G1 X Y35 Z0" target="gcodeSenderResult">Level Point 3</a><br>
+	
         <input id="gcodeToSend" ></input> <button onclick="
         document.getElementById('gcodeSenderResult').src = './manualcontrol?gcode=' + document.getElementById('gcodeToSend').value;
         ">
