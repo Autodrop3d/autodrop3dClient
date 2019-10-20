@@ -748,7 +748,7 @@ while 1:
 				pinConfig.LEDstateYellow = "slow"
 				time.sleep(5)
 				print("updating client")
-				subprocess.call('git reset --hard  && git pull ', shell=True)
+				subprocess.call('git reset --hard  && git pull && reboot now', shell=True)
 			else:
 				currentMachineState.wifiAPmode = not currentMachineState.wifiAPmode
 				if currentMachineState.wifiAPmode == True:
