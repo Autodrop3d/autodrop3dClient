@@ -1,6 +1,8 @@
 #! /usr/bin/env python3
 ServerTestMode="off"
 
+import ssl
+ssl._create_default_https_context = ssl._create_unverified_context
 
 import _thread
 import time
