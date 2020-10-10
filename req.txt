@@ -46,7 +46,7 @@ pyOpenSSL==16.2.0
 pyserial==3.2.1
 pyxdg==0.25
 rainbowhat==0.0.2
-requests==2.12.4
+requests==2.20.0
 requests-oauthlib==0.7.0
 RPi.GPIO==0.6.3
 RTIMULib==7.2.1
