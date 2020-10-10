@@ -20,7 +20,7 @@ pyasn1==0.1.9
 pycrypto==2.6.1
 pyserial==2.6
 pyxdg==0.25
-PyYAML==3.12
+PyYAML==5.1
 query-string==0.0.28
 request==0.0.26
 requests==2.12.4
