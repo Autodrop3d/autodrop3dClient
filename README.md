@@ -35,7 +35,7 @@ There are additional features to make automatic part ejection possible by toggli
 
     
 2) Download prebuilt raspberry pi image image from the following link
-https://github.com/Autodrop3d/autodrop3dClient/releases/download/1.0/AD3d.image.zip
+https://github.com/Autodrop3d/autodrop3dClient/releases/download/1.2/autodrop3dimage.zip
 
 3) Extract the ZIP file and use etcher (https://www.balena.io/etcher/) or similar softwar to write the image file to a 16gb sd card.
 
