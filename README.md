@@ -11,7 +11,7 @@ There are additional features to make automatic part ejection possible by toggli
 #Instructions 
 1) Hook up push buttons, LEDs and other items to GPIO header on the raspberry pi. 
     pin numbers are using the board pin header numbers for the raspberry pi
-    ![Image description](link-to-image)
+    ![Image description](hookup.png)
 
     A minimal setup dose not require all pins listed to be used. 
 
