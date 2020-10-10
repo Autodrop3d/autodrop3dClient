@@ -28,8 +28,8 @@ There are additional features to make automatic part ejection possible by toggli
     | NO       | Output | LEDred          | 7     |
     | NO       | Output | LEDyellow       | 29    |
     | NO       | Output | LEDgreen        | 18    |
-    |          |        |                 |       |
-    |          |        |                 |       |
+    | NO       | Serial | Serial TX       | 8     |
+    | NO       | Serial | Serial RX       | 10    |
     |          |        |                 |       |
     
 
