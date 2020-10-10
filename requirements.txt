@@ -19,7 +19,7 @@ public==0.0.65
 pyasn1==0.1.9
 pycrypto==2.6.1
 pyserial==2.6
-pyxdg==0.25
+pyxdg==0.26
 PyYAML==3.12
 query-string==0.0.28
 request==0.0.26
