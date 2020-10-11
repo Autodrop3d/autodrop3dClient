@@ -1,5 +1,5 @@
 # autodrop3dClient
-Client software for 3d printers interfacing with AutoDrop3D
+Client software for 3d printers interfacing with AutoDrop3D. This software will let you connect your printer to the https://autodrop3d.com cloud.
 
 
 This is the client software for the autodrop3d printer system.
