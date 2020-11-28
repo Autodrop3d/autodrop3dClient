@@ -142,7 +142,7 @@ app = Flask(__name__)
 if (ServerTestMode == "on"):
 	currentMachineState.printerServer = "https://autodrop1.sparkhosted.site/api/jobsQueue/printerRequestJob"
 else:
-	currentMachineState.printerServer = "http://192.168.1.40:3000/api/jobsQueue/printerRequestJob"
+	currentMachineState.printerServer = "http://go.autodrop3d.com/api/jobsQueue/printerRequestJob"
 		
 		
 
