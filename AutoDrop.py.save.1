@@ -74,7 +74,7 @@ class currentMachineState:
 	printerServer = ""
 	wifiAPname = ""
 	wifiAPpass = ""
-	disableAllOffsets = "false"
+	
 	wifiAPmode = False
 
 
@@ -142,7 +142,7 @@ app = Flask(__name__)
 if (ServerTestMode == "on"):
 	currentMachineState.printerServer = "https://autodrop1.sparkhosted.site/api/jobsQueue/printerRequestJob"
 else:
-	currentMachineState.printerServer = "http://192.168.1.40:3000/api/jobsQueue/printerRequestJob"
+	currentMachineState.printerServer = "http://23.92.65.48:3000/api/jobsQueue/printerRequestJob"
 		
 		
 
@@ -154,14 +154,13 @@ def printServerBaseURL():
 
 try:
 	f = open("../settings.txt",'r');
-	currentMachineState.AutoDropSerialPort                  = str(f.readline()).strip()
-	currentMachineState.AutoDropSerialPortSpeed             = str(f.readline()).strip()
-	currentMachineState.printerName                         = str(f.readline()).strip()
-	currentMachineState.clientAcessKey                      = str(f.readline()).strip()
+	currentMachineState.AutoDropSerialPort = str(f.readline()).strip()
+	currentMachineState.AutoDropSerialPortSpeed = str(f.readline()).strip()
+	currentMachineState.printerName = str(f.readline()).strip()
+	currentMachineState.clientAcessKey = str(f.readline()).strip()
 	currentMachineState.printerPositionOffsetOverideX	= str(f.readline()).strip()
 	currentMachineState.printerPositionOffsetOverideY	= str(f.readline()).strip()
 	currentMachineState.printerPositionOffsetOverideZ	= str(f.readline()).strip()
-	currentMachineState.disableAllOffsets                   = str(f.readline()).strip()
 	f.close()
 except:
 	print("No configuration file supplied. Configure from web browser")
@@ -217,8 +216,7 @@ def index():
 		currentMachineState.printerName = request.form['printerName']
 
 		currentMachineState.clientAcessKey = request.form['clientAcessKey']
-		
-		currentMachineState.disableAllOffsets = request.form['disableAllOffsets']
+
 
 		currentMachineState.printerPositionOffsetOverideX = request.form['printerPositionOffsetOverideX']
 		currentMachineState.printerPositionOffsetOverideY = request.form['printerPositionOffsetOverideY']
@@ -237,13 +235,6 @@ def index():
 		f.write( currentMachineState.printerPositionOffsetOverideX + "\n")
 		f.write( currentMachineState.printerPositionOffsetOverideY + "\n")
 		f.write( currentMachineState.printerPositionOffsetOverideZ + "\n")
-		f.write( currentMachineState.disableAllOffsets + "\n")
-		f.write( "\n")
-		f.write( "\n")
-		f.write( "\n")
-		f.write( "\n")
-		f.write( "\n")
-
 		f.close()
 		
 		currentMachineState.wifiAPname = request.form['wifiAPname']
@@ -259,7 +250,7 @@ def index():
 	except:
 		PLUGINFUNCTIONS = ""
 
-	return render_template('index.html', listOfSerialDevices = listOfSerialDevices, AutoDropSerialPort = currentMachineState.AutoDropSerialPort , AutoDropSerialPortSpeed = currentMachineState.AutoDropSerialPortSpeed, printerName = currentMachineState.printerName,	PLUGINFUNCTIONS = PLUGINFUNCTIONS, clientAcessKey = currentMachineState.clientAcessKey, printerPositionOffsetOverideX = currentMachineState.printerPositionOffsetOverideX, printerPositionOffsetOverideY = currentMachineState.printerPositionOffsetOverideY, printerPositionOffsetOverideZ = currentMachineState.printerPositionOffsetOverideZ, disableAllOffsets = currentMachineState.disableAllOffsets)
+	return render_template('index.html', listOfSerialDevices = listOfSerialDevices, AutoDropSerialPort = currentMachineState.AutoDropSerialPort , AutoDropSerialPortSpeed = currentMachineState.AutoDropSerialPortSpeed, printerName = currentMachineState.printerName,	PLUGINFUNCTIONS = PLUGINFUNCTIONS, clientAcessKey = currentMachineState.clientAcessKey, printerPositionOffsetOverideX = currentMachineState.printerPositionOffsetOverideX, printerPositionOffsetOverideY = currentMachineState.printerPositionOffsetOverideY, printerPositionOffsetOverideZ = currentMachineState.printerPositionOffsetOverideZ)
 
 
 
@@ -294,10 +285,6 @@ def EjectStuff():
 
 
 def offsetGcodeDuringRaft(orgNonManipulatedString = ""):
-	if currentMachineState.disableAllOffsets == "TRUE":
-		return orgNonManipulatedString
-
-
 	ManipulatedString = ""
 	print("this is the original un manipulated string")
 	print(orgNonManipulatedString)
@@ -329,9 +316,7 @@ def SendGcodeLine(ll = '', returnJustPrinterResponse = 0):
 		print("Sent " +str( currentMachineState.currentPrintLineNumber)  + " : " + ll + " | waiting for response")
 
 		beReadingLines = 1
-		millis = int(round(time.time() * 1000))
-		print("this is the start time")
-		print(millis)
+		millis = int(round(time.time() * 10))
 
 		while beReadingLines:
 			grbl_out = ""
@@ -357,11 +342,9 @@ def SendGcodeLine(ll = '', returnJustPrinterResponse = 0):
 					break
 				if currentMachineState.cancellCurentPrint == 1:
 					break
-				if millis + 10000 < int(round(time.time() * 1000)):
+				if millis + 20  <  int(round(time.time() * 1000)):
 					currentMachineState.s.write(("M114").encode("ascii") + b'\n')
 					print("Some thing must have stalled the gcode send" )
-					print(millis)
-					print(int(round(time.time() * 1000)))
 					break
 			
 			#print("got that line back")
@@ -379,7 +362,7 @@ def SendGcodeLine(ll = '', returnJustPrinterResponse = 0):
 			if currentMachineState.cancellCurentPrint == 1:
 				break
 	else:
-		time.sleep(.002)
+		time.sleep(.001)
 	if (returnJustPrinterResponse):
 		return "    Sent : " + ll + "   Result: " + grbl_out
 	else:

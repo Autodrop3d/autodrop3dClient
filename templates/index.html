@@ -1762,12 +1762,17 @@
             <input type="text" name="printerPositionOffsetOverideY" value="{{ printerPositionOffsetOverideY }}"><br>
             ZERO POINT OFFSET Z:<br>
             <input type="text" name="printerPositionOffsetOverideZ" value="{{ printerPositionOffsetOverideZ }}"><br>
-						<br>
-	    			wifiAPname:<br>
+            <br>wifiAPname:<br>
             <input type="text" name="wifiAPname" value="{{ wifiAPname }}" ><br>
-	    			wifiAPpass:<br>
+	    wifiAPpass:<br>
             <input type="text" name="wifiAPpass" value="{{ wifiAPpass }}" ><br>
             <br>
+
+            DISABLE ALL OFFSETS:<br>
+            <input type="text" name="disableAllOffsets" value="{{ disableAllOffsets  }}" onclick='if (this.value == "FALSE") {this.value = "TRUE"}else{this.value ="FALSE"} ' ><br>
+            <br>
+
+
 
 
         </div>
