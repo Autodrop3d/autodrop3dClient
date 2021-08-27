@@ -144,7 +144,7 @@ app = Flask(__name__)
 if (ServerTestMode == "on"):
 	currentMachineState.printerServer = "https://autodrop1.sparkhosted.site/api/jobsQueue/printerRequestJob"
 else:
-	currentMachineState.printerServer = "http://go.autodrop3d.com/api/jobsQueue/printerRequestJob"
+	currentMachineState.printerServer = "https://go.autodrop3d.com/api/jobsQueue/printerRequestJob"
 		
 		
 
@@ -554,7 +554,7 @@ def StatusUpdateLoopWhilePrinting():
 
 				data = { "jobID":currentMachineState.PrintNumber, "name":currentMachineState.printerName, "key":currentMachineState.clientAcessKey, "stat":"update", "jobStatus": howFarAlongInThePrintAreWe , "img":image_to_data_url('./static/junk.png'), "ip": get_Host_name_IP()}
 				headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
-				
+				print(data,headers,currentMachineState.printerServer)
 				response = requests.post(currentMachineState.printerServer , json=data).content.decode("utf-8")
 				print(response)
 				if response.find("CANCELED") > -1:
