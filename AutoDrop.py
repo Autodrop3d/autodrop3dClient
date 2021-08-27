@@ -547,7 +547,8 @@ def StatusUpdateLoopWhilePrinting():
 					print("final picture taken")
 
 				howFarAlongInThePrintAreWe = str((currentMachineState.currentPrintLineNumber / currentMachineState.currentPrintTotalLineNumber) * 100)
-				
+				print("howFarAlongInThePrintAreWe")
+				print(howFarAlongInThePrintAreWe)
 				if (currentMachineState.cancellCurentPrint == 1):
 				    howFarAlongInThePrintAreWe = "canceled"
 
@@ -555,7 +556,7 @@ def StatusUpdateLoopWhilePrinting():
 				headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
 				
 				response = requests.post(currentMachineState.printerServer , json=data).content.decode("utf-8")
-				
+				print(response)
 				if response.find("CANCELED") > -1:
 					print("Job should be canceled now")
 					currentMachineState.cancellCurentPrint = 1
