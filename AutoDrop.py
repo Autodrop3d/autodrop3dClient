@@ -301,8 +301,8 @@ def offsetGcodeDuringRaft(orgNonManipulatedString = ""):
 
 
 	ManipulatedString = ""
-	print("this is the original un manipulated string")
-	print(orgNonManipulatedString)
+	#print("this is the original un manipulated string")
+	#print(orgNonManipulatedString)
 	for member in orgNonManipulatedString.split( ):
 		#print(member[0], member)
 		if (member[0] == "X"):
@@ -547,16 +547,16 @@ def StatusUpdateLoopWhilePrinting():
 					print("final picture taken")
 
 				howFarAlongInThePrintAreWe = str((currentMachineState.currentPrintLineNumber / currentMachineState.currentPrintTotalLineNumber) * 100)
-				print("howFarAlongInThePrintAreWe")
-				print(howFarAlongInThePrintAreWe)
+				#print("howFarAlongInThePrintAreWe")
+				#print(howFarAlongInThePrintAreWe)
 				if (currentMachineState.cancellCurentPrint == 1):
 				    howFarAlongInThePrintAreWe = "canceled"
 
 				data = { "jobID":currentMachineState.PrintNumber, "name":currentMachineState.printerName, "key":currentMachineState.clientAcessKey, "stat":"update", "jobStatus": howFarAlongInThePrintAreWe , "img":image_to_data_url('./static/junk.png'), "ip": get_Host_name_IP()}
 				headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
-				print(data,headers,currentMachineState.printerServer)
+				#print(data,headers,currentMachineState.printerServer)
 				response = requests.post(currentMachineState.printerServer , json=data).content.decode("utf-8")
-				print(response)
+				#print(response)
 				if response.find("CANCELED") > -1:
 					print("Job should be canceled now")
 					currentMachineState.cancellCurentPrint = 1
