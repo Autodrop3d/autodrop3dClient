@@ -8,10 +8,12 @@ This software automatically retrieves gcode print jobs from the autodrop3d serve
 There are additional features to make automatic part ejection possible by toggling the GPIO pins of the raspberry pi using wiringpi. It is also capable of using filament run out detectors with out any modifications to printer firmware.
 
 
+![Image description](hookup.png)
+
 #Instructions 
 1) Hook up push buttons, LEDs and other items to GPIO header on the raspberry pi. 
     pin numbers are using the board pin header numbers for the raspberry pi
-    ![Image description](hookup.png)
+    
 
     A minimal setup dose not require all pins listed to be used. 
 
