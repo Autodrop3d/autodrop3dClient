@@ -3,7 +3,7 @@ chardet==3.0.4
 chardet2==2.0.3
 click==6.7
 cryptography==1.7.1
-Flask==0.12.2
+Flask==1.0
 Flask-WTF==0.14.2
 future==0.16.0
 get==0.0.39

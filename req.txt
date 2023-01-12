@@ -11,7 +11,7 @@ drumhat==0.1.0
 enum34==1.1.6
 envirophat==0.0.6
 ExplorerHAT==0.4.2
-Flask==0.12.1
+Flask==1.0
 fourletterphat==0.1.0
 gpiozero==1.4.1
 idna==2.2
