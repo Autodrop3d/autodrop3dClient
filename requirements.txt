@@ -23,7 +23,7 @@ pyxdg==0.25
 PyYAML==3.12
 query-string==0.0.28
 request==0.0.26
-requests==2.12.4
+requests==2.20.0
 RPi.GPIO==0.6.3
 SecretStorage==2.3.1
 six==1.10.0
